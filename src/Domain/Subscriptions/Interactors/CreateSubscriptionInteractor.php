@@ -1,10 +1,10 @@
 <?php
 
+namespace Domain\Subscriptions\Interactors;
 
 use App\Models\Subscription;
-use App\Models\Website;
 use Domain\Subscriptions\Interactors\Requests\CreateSubscriptionRequest;
-use Domain\ValidationExceptions\ValidationException;
+
 
 class CreateSubscriptionInteractor
 {
@@ -14,8 +14,9 @@ class CreateSubscriptionInteractor
 
         $subscription = new Subscription();
         $subscription->email = $request->email;
-        $subscription->website_id = $request->website_ID;
+        $subscription->website_id = $request->website_id;
         $subscription->save();
+
         return $subscription;
     }
 

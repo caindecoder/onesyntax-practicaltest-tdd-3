@@ -9,20 +9,16 @@ use Domain\ValidationExceptions\ValidationException;
 class CreateSubscriptionRequest
 {
     public string $email;
-    public string $website_ID;
+    public string $website_id;
 
     public function validate(): void
     {
-        if (empty($this->email)) {
-            throw new ValidationException('eMail is required.');
-        }
-
-        if (empty($this->website_ID)) {
-            throw new ValidationException('Website is required.');
+        if (empty($this->email) || empty($this->website_id)) {
+            throw new ValidationException('Email and Website ID are required.');
         }
 
         if ($this->emailAlreadyExists()) {
-            throw new ValidationException('eMail already exists.');
+            throw new ValidationException('Subscription already exists for this email and website.');
         }
 
     }
@@ -31,7 +27,7 @@ class CreateSubscriptionRequest
     {
         return Subscription::query()
             ->where('email', $this->email)
-            ->orWhere('website_ID', $this->website_ID)
+            ->orWhere('website_id', $this->website_id)
             ->exists();
     }
 

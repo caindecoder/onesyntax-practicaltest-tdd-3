@@ -6,7 +6,6 @@ use App\Models\Website;
 use Domain\ValidationExceptions\ValidationException;
 use Domain\Websites\Interactors\CreateWebsiteInteractor;
 use Domain\Websites\Interactors\Requests\CreateWebsiteRequest;
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -61,6 +60,8 @@ class CreateWebsiteTest extends TestCase
     #[Test]
     public function can_not_create_duplicate_website(): void
     {
+        Website::create($this->testData);
+
         $request = new CreateWebsiteRequest();
 
         $request->name = 'Example Website';
@@ -75,7 +76,6 @@ class CreateWebsiteTest extends TestCase
         } catch (ValidationException $e) {
             $this->assertEquals('A website with the same name or URL already exists.', $e->getMessage());
         }
-
     }
 
     #[Test]
@@ -94,6 +94,7 @@ class CreateWebsiteTest extends TestCase
         $this->assertInstanceOf(Website::class, $website);
         $this->assertEquals($request->name, $website->name);
         $this->assertEquals($request->url, $website->url);
+
         $this->assertDatabaseHas('websites', [
             'name' => $request->name,
             'url' => $request->url,

@@ -25,5 +25,16 @@ class CreatePostRequest
         if (empty($this->description)) {
             throw new ValidationException('Post description is required.');
         }
+
+        if ($this->postTitleAlreadyExists()) {
+            throw new ValidationException('A post with the same title already exists.');
+        }
+    }
+
+    protected function postTitleAlreadyExists(): bool
+    {
+        return Post::query()
+            ->where('title', $this->title)
+            ->exists();
     }
 }
