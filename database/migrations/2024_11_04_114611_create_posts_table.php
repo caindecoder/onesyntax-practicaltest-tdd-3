@@ -15,9 +15,10 @@ class CreatePostsTable extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
-            $table->string('title');        // Title of the post
-            $table->text('description');    // Description or content of the post
-            $table->timestamps();           // Created at and updated at timestamps
+            $table->string('title');
+            $table->text('description');
+            $table->foreignId('website_id')->constrained()->onDelete('cascade'); // Ensure this line exists
+            $table->timestamps();
         });
     }
 

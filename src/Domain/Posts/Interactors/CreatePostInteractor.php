@@ -16,6 +16,7 @@ class CreatePostInteractor
         $post = new Post();
         $post->title = $request->title;
         $post->description = $request->description;
+        $post->website_id = $request->website_id;
         $post->save();
 
         return $post;

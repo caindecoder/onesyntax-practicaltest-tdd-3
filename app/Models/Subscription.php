@@ -18,4 +18,9 @@ class Subscription extends Model
         'email',
         'website_id',
     ];
+
+    public function website()
+    {
+        return $this->belongsTo(Website::class);
+    }
 }

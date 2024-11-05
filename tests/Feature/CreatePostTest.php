@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Post;
+use App\Models\Website;
 use Domain\Posts\Interactors\CreatePostInteractor;
 use Domain\Posts\Interactors\Requests\CreatePostRequest;
 
@@ -17,13 +18,20 @@ class CreatePostTest extends TestCase
     use RefreshDatabase;
 
     private array $testData;
+    private int $websiteId;
 
     protected function setUp(): void
     {
         parent::setUp();
+        $website = Website::create([
+            'name' => 'Test Website',
+            'url' => 'https://test.com',
+        ]);
+        $this->websiteId = $website->id;
         $this->testData = [
-            'title' => 'Website',
-            'description' => 'Sample Description',
+            'title' => 'Test Post Title',
+            'description' => 'Test Post Description',
+            'website_id' => $this->websiteId,
         ];
     }
 
@@ -36,6 +44,7 @@ class CreatePostTest extends TestCase
 
         $request->title = '';
         $request->description = 'Sample Description';
+        $request->website_id = $this->websiteId;
 
         try {
             $interactor = new CreatePostInteractor();
@@ -53,6 +62,7 @@ class CreatePostTest extends TestCase
 
         $request->title = 'Sample Post Title';
         $request->description = '';
+        $request->website_id = $this->websiteId;
 
         try {
             $interactor = new CreatePostInteractor();
@@ -69,12 +79,14 @@ class CreatePostTest extends TestCase
         Post::create([
             'title' => 'Duplicate Title',
             'description' => 'First post description',
+            'website_id' => $this->websiteId,
         ]);
 
         $request = new CreatePostRequest();
 
         $request->title = 'Duplicate Title';
         $request->description = 'Another post description';
+        $request->website_id = $this->websiteId;
 
         Post::create($this->testData);
 
@@ -95,6 +107,7 @@ class CreatePostTest extends TestCase
 
         $request->title = 'Unique Post Title';
         $request->description = 'This is a sample post description.';
+        $request->website_id = $this->websiteId;
 
         $interactor = new CreatePostInteractor();
 
@@ -104,6 +117,7 @@ class CreatePostTest extends TestCase
         $this->assertInstanceOf(Post::class, $post);
         $this->assertEquals($request->title, $post->title);
         $this->assertEquals($request->description, $post->description);
+        $this->assertEquals($request->website_id, $post->website_id);
 
         $this->assertDatabaseHas('posts', [
             'title' => 'Unique Post Title',

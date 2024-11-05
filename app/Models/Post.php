@@ -16,5 +16,11 @@ class Post extends Model
     protected $fillable = [
         'title',
         'description',
+        'website_id', // Add this to allow mass assignment of website_id
     ];
+
+    public function website()
+    {
+        return $this->belongsTo(Website::class);
+    }
 }
