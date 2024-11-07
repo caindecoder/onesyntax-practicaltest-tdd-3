@@ -11,7 +11,7 @@ class PostPublished extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $post;
+    public Post $post;
 
     public function __construct(Post $post)
     {
@@ -23,4 +23,5 @@ class PostPublished extends Mailable
         return $this->subject('New Post Published: ' . $this->post->title)
             ->view('emails.postPublished');
     }
+
 }

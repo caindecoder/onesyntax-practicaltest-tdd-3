@@ -9,8 +9,15 @@ class SentEmail extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['email', 'post_id'];
+    protected $fillable = ['subscription_id', 'post_id'];
 
+    // Define a relationship to Subscription
+    public function subscription()
+    {
+        return $this->belongsTo(Subscription::class);
+    }
+
+    // Define a relationship to Post
     public function post()
     {
         return $this->belongsTo(Post::class);

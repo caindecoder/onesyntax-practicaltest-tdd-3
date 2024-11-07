@@ -10,8 +10,8 @@ class CreateSentEmailsTable extends Migration
     {
         Schema::create('sent_emails', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('post_id')->constrained()->onDelete('cascade'); // Reference to the post
-            $table->string('recipient_email');
+            $table->foreignId('subscription_id')->constrained()->onDelete('cascade');
+            $table->foreignId('post_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

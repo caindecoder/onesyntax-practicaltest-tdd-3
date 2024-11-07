@@ -9,8 +9,7 @@ class Kernel extends ConsoleKernel
 {
     protected function schedule(Schedule $schedule)
     {
-        // Define your scheduled commands
-        // $schedule->command('emails:send')->daily();
+        $schedule->command('emails:send')->daily();
     }
 
     protected function commands()

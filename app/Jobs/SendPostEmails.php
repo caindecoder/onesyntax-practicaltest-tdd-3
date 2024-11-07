@@ -6,29 +6,26 @@ use App\Mail\PostPublished;
 use App\Models\Post;
 use App\Models\Subscription;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
-class SendPostEmails implements ShouldQueue
+class SendPostEmails
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, Queueable, SerializesModels;
 
-    protected $post;
+    public $subscriberEmail;
+    public $post;
 
-    public function __construct(Post $post)
+    public function __construct($subscriberEmail, Post $post)
     {
+        $this->subscriberEmail = $subscriberEmail;
         $this->post = $post;
     }
 
     public function handle()
     {
-        $subscriptions = Subscription::where('website_id', $this->post->website_id)->get();
-
-        foreach ($subscriptions as $subscription) {
-            Mail::to($subscription->email)->send(new PostPublished($this->post));
-        }
+        Mail::to($this->subscriberEmail)->send(new PostPublished($this->post));
     }
+
 }

@@ -43,7 +43,7 @@ class CreatePostRequest
             ->exists();
     }
 
-    private function websiteExists(): bool
+    private function websiteExists()
     {
         return Website::query()
             ->where('id', $this->website_id)

@@ -23,4 +23,9 @@ class Subscription extends Model
     {
         return $this->belongsTo(Website::class);
     }
+
+    public function sentEmails()
+    {
+        return $this->hasMany(SentEmail::class);
+    }
 }
