@@ -6,6 +6,7 @@ use App\Models\Website;
 use Domain\ValidationExceptions\ValidationException;
 use Domain\Websites\Interactors\CreateWebsiteInteractor;
 use Domain\Websites\Interactors\Requests\CreateWebsiteRequest;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class WebsiteController extends Controller
@@ -35,9 +36,9 @@ class WebsiteController extends Controller
     /**
      * @param CreateWebsiteInteractor $createWebsiteInteractor
      * @param CreateWebsiteRequest $createWebsiteRequest
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
-    public function submitWebsite(CreateWebsiteInteractor $createWebsiteInteractor, CreateWebsiteRequest $createWebsiteRequest): \Illuminate\Http\RedirectResponse
+    public function submitWebsite(CreateWebsiteInteractor $createWebsiteInteractor, CreateWebsiteRequest $createWebsiteRequest): RedirectResponse
     {
         try {
             $website = $createWebsiteInteractor->create($createWebsiteRequest);

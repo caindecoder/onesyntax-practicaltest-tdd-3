@@ -11,12 +11,10 @@ class CreateWebsiteInteractor
     {
         $request->validate();
 
-        // Create a new website instance
         $website = new Website;
         $website->name = $request->name;
         $website->url = $request->url;
 
-        // Save the website to the database
         $website->save();
 
         return $website;
