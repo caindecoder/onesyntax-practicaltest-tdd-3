@@ -8,14 +8,5 @@ use Domain\Emails\Interactors\Requests\SendEmailRequest;
 
 class SendEmailInteractor
 {
-    public function execute(SendEmailRequest $request): void
-    {
-
-    }
-
-    public function sendEmails(Website $website): void
-    {
-
-    }
-
+    //
 }
