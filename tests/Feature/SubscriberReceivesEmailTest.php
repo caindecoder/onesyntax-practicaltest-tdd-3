@@ -19,13 +19,48 @@ class SubscriberReceivesEmailTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        // Set up initial data
+
         $website = Website::create(['name' => 'Test Website', 'url' => 'https://test.com']);
         Subscription::create(['email' => 'subscriber@example.com', 'website_id' => $website->id]);
     }
 
     #[Test]
+    public function can_only_valid_subscribers_receive_email()
+    {
+
+    }
+
+    #[Test]
+    public function can_send_emails_to_each_subscription()
+    {
+
+    }
+
+    #[Test]
+    public function can_only_send_one_email_to_each_subscriber()
+    {
+
+    }
+
+    #[Test]
     public function can_user_receive_email_after_subscribing_to_website()
+    {
+
+    }
+
+    #[Test]
+    public function can_send_email_to_all_subscribers_when_new_post_is_published()
+    {
+
+    }
+
+    #[Test]
+    public function can_use_commands_to_send_emails_to_subscribers()
+    {
+
+    }
+    #[Test]
+    public function can_use_queues_to_schedule_sending_in_the_background()
     {
 
     }
