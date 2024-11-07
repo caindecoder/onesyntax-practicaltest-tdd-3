@@ -37,7 +37,7 @@ class CreateWebsiteTest extends TestCase
             $interactor = new CreateWebsiteInteractor;
             $interactor->create($request);
         } catch (ValidationException $e) {
-            $this->assertEquals('Website name is required.', $e->getMessage());
+            $this->assertEquals('The name field is required.', $e->getMessage());
         }
     }
 
@@ -53,7 +53,7 @@ class CreateWebsiteTest extends TestCase
             $interactor = new CreateWebsiteInteractor();
             $interactor->create($request);
         } catch (ValidationException $e) {
-            $this->assertEquals('Website URL is required.', $e->getMessage());
+            $this->assertEquals('The url field is required.', $e->getMessage());
         }
     }
 

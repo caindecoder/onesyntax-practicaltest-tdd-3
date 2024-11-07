@@ -3,33 +3,47 @@
 namespace App\Http\Controllers;
 
 use App\Models\Website;
+use Domain\ValidationExceptions\ValidationException;
+use Domain\Websites\Interactors\CreateWebsiteInteractor;
+use Domain\Websites\Interactors\Requests\CreateWebsiteRequest;
 use Illuminate\Http\Request;
 
 class WebsiteController extends Controller
 {
     public function index()
     {
-        // Display a list of websites
         $websites = Website::all();
         return view('createWebsite.index', compact('websites'));
     }
 
     public function create()
     {
-        // Show the form for creating a new website
         return view('createWebsite.create');
     }
 
-    public function store(Request $request)
+    public function store(Request $request, CreateWebsiteInteractor $createWebsiteInteractor)
     {
-        // Validate and create a new website
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'url' => 'required|url|max:255',
-        ]);
+        $createWebsiteRequest = new CreateWebsiteRequest();
 
-        Website::create($request->only('name', 'url'));
+        $createWebsiteRequest->name = $request->input('name');
+        $createWebsiteRequest->url = $request->input('url');
 
-        return redirect()->route('websites.index')->with('success', 'Website created successfully.');
+        return $this->submitWebsite($createWebsiteInteractor, $createWebsiteRequest);
+
+    }
+
+    /**
+     * @param CreateWebsiteInteractor $createWebsiteInteractor
+     * @param CreateWebsiteRequest $createWebsiteRequest
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function submitWebsite(CreateWebsiteInteractor $createWebsiteInteractor, CreateWebsiteRequest $createWebsiteRequest): \Illuminate\Http\RedirectResponse
+    {
+        try {
+            $website = $createWebsiteInteractor->create($createWebsiteRequest);
+            return redirect()->route('websites.index')->with('success', 'Website created successfully.');
+        } catch (ValidationException $e) {
+            return back()->withErrors($e->getMessage())->withInput();
+        }
     }
 }
