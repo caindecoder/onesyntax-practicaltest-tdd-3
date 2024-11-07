@@ -31,6 +31,8 @@ class PostController extends Controller
 
         $createPostRequest->title = $request->input('title');
         $createPostRequest->description = $request->input('description');
+        $createPostRequest->website_id = $request->input('website_id');
+
 
         return $this->submitPost($interactor, $createPostRequest);
     }
