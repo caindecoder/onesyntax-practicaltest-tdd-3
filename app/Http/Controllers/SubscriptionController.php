@@ -4,13 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Subscription;
 use App\Models\Website;
+use Domain\Subscriptions\Interactors\CreateSubscriptionInteractor;
+use Domain\Subscriptions\Interactors\Requests\CreateSubscriptionRequest;
+use Domain\ValidationExceptions\ValidationException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class SubscriptionController extends Controller
 {
     public function index()
     {
-        // Display a list of subscriptions
         $subscriptions = Subscription::all();
         $websites = Website::all();
         return view('createSubscription.index', compact('subscriptions', 'websites'));
@@ -18,21 +21,34 @@ class SubscriptionController extends Controller
 
     public function create()
     {
-        // Show the form for creating a new subscription
-        $websites = Website::all(); // Assuming you want to select from available websites
+
+        $websites = Website::all();
         return view('createSubscription.create', compact('websites'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, CreateSubscriptionInteractor $interactor)
     {
-        // Validate and create a new subscription
-        $request->validate([
-            'email' => 'required|email|max:255|unique:subscriptions',
-            'website_id' => 'required|exists:websites,id',
-        ]);
+        $createSubscriptionRequest = new CreateSubscriptionRequest();
+        $createSubscriptionRequest->email = $request->input('email');
+        $createSubscriptionRequest->website_id = $request->input('website_id');
 
-        Subscription::create($request->only('email', 'website_id'));
+        return $this->submitSubscription($interactor, $createSubscriptionRequest);
+    }
 
-        return redirect()->route('subscriptions.index')->with('success', 'Subscription created successfully.');
+    /**
+     * @param CreateSubscriptionInteractor $interactor
+     * @param CreateSubscriptionRequest $createSubscriptionRequest
+     * @return RedirectResponse
+     */
+    public function submitSubscription(CreateSubscriptionInteractor $interactor, CreateSubscriptionRequest $createSubscriptionRequest): RedirectResponse
+    {
+        try {
+
+            $subscription = $interactor->create($createSubscriptionRequest);
+
+            return redirect()->route('subscriptions.index')->with('success', 'Subscription created successfully.');
+        } catch (ValidationException $e) {
+            return back()->withErrors($e->getMessage())->withInput();
+        }
     }
 }

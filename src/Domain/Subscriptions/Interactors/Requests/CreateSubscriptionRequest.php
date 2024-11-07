@@ -4,6 +4,7 @@ namespace Domain\Subscriptions\Interactors\Requests;
 
 use App\Models\Subscription;
 use Domain\ValidationExceptions\ValidationException;
+use Illuminate\Support\Facades\Validator;
 
 
 class CreateSubscriptionRequest
@@ -13,12 +14,14 @@ class CreateSubscriptionRequest
 
     public function validate(): void
     {
-        if (empty($this->email) || empty($this->website_id)) {
-            throw new ValidationException('Email and Website ID are required.');
-        }
+        $validator = $this->processValidation();
 
         if ($this->emailAlreadyExists()) {
             throw new ValidationException('Subscription already exists for this email and website.');
+        }
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator->errors()->first());
         }
 
     }
@@ -29,6 +32,23 @@ class CreateSubscriptionRequest
             ->where('email', $this->email)
             ->orWhere('website_id', $this->website_id)
             ->exists();
+    }
+
+    /**
+     * @return \Illuminate\Validation\Validator
+     */
+    public function processValidation(): \Illuminate\Validation\Validator
+    {
+        return Validator::make(
+            [
+                'email' => $this->email,
+                'website_id' => $this->website_id,
+            ],
+            [
+                'email' => ['required', 'email', 'unique:subscriptions,email'],
+                'website_id' => 'required|exists:websites,id',
+            ]
+        );
     }
 
 }

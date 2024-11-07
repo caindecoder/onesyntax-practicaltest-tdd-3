@@ -48,7 +48,7 @@ class CreateSubscriptionTest extends TestCase
             $interactor = new CreateSubscriptionInteractor();
             $interactor->create($request);
         } catch (ValidationException $e) {
-            $this->assertEquals('Email and Website ID are required.', $e->getMessage());
+            $this->assertEquals('The email field is required.', $e->getMessage());
         }
     }
 
