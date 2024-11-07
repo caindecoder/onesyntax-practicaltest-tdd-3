@@ -4,13 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\Website;
+use Domain\Posts\Interactors\CreatePostInteractor;
+use Domain\Posts\Interactors\Requests\CreatePostRequest;
+use Domain\ValidationExceptions\ValidationException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
     public function index()
     {
-        // Display a list of posts
         $posts = Post::all();
         $websites = Website::all();
         return view('createPost.index', compact('posts', 'websites'));
@@ -18,28 +21,34 @@ class PostController extends Controller
 
     public function create()
     {
-        // Show the form for creating a new post
-        $websites = Website::all(); // Assuming you want to select from available websites
+        $websites = Website::all();
         return view('createPost.create', compact('websites'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, CreatePostInteractor $interactor)
     {
-        // Validate and create a new post
-        $request->validate([
-            'title' => 'required|string|max:255|unique:posts',
-            'description' => 'required|string',
-            'website_id' => 'required|exists:websites,id',
-        ]);
+        $createPostRequest = new CreatePostRequest();
 
-        Post::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'website_id' => $request->website_id,
-        ]);
+        $createPostRequest->title = $request->input('title');
+        $createPostRequest->description = $request->input('description');
 
-        // Optionally, you may trigger an email to subscribers here
+        return $this->submitPost($interactor, $createPostRequest);
+    }
 
-        return redirect()->route('posts.index')->with('success', 'Post created successfully.');
+    /**
+     * @param CreatePostInteractor $interactor
+     * @param CreatePostRequest $createPostRequest
+     * @return RedirectResponse
+     */
+    public function submitPost(CreatePostInteractor $interactor, CreatePostRequest $createPostRequest): RedirectResponse
+    {
+        try {
+
+            $post = $interactor->create($createPostRequest);
+
+            return redirect()->route('posts.index')->with('success', 'Post created successfully.');
+        } catch (ValidationException $e) {
+            return back()->withErrors($e->getMessage())->withInput();
+        }
     }
 }

@@ -50,7 +50,7 @@ class CreatePostTest extends TestCase
             $interactor = new CreatePostInteractor();
             $interactor->create($request);
         } catch (ValidationException $e) {
-            $this->assertEquals('Post title is required.', $e->getMessage());
+            $this->assertEquals('The title field is required.', $e->getMessage());
         }
 
     }
@@ -68,7 +68,7 @@ class CreatePostTest extends TestCase
             $interactor = new CreatePostInteractor();
             $interactor->create($request);
         } catch (ValidationException $e) {
-            $this->assertEquals('Post description is required.', $e->getMessage());
+            $this->assertEquals('The description field is required.', $e->getMessage());
         }
 
     }
