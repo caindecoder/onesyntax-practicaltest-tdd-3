@@ -44,7 +44,7 @@ class SubscriptionController extends Controller
     {
         try {
 
-            $subscription = $interactor->create($createSubscriptionRequest);
+            $subscription = $interactor->execute($createSubscriptionRequest);
 
             return redirect()->route('subscriptions.index')->with('success', 'Subscription created successfully.');
         } catch (ValidationException $e) {

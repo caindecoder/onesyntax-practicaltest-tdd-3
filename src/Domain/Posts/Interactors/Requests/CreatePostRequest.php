@@ -12,7 +12,7 @@ class CreatePostRequest
 {
     public string $title;
     public string $description;
-    public int $website_id;
+    public string $website_id;
 
     /**
      * Validates the request data.

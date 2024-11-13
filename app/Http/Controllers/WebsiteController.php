@@ -38,10 +38,11 @@ class WebsiteController extends Controller
      * @param CreateWebsiteRequest $createWebsiteRequest
      * @return RedirectResponse
      */
-    public function submitWebsite(CreateWebsiteInteractor $createWebsiteInteractor, CreateWebsiteRequest $createWebsiteRequest): RedirectResponse
+    public function submitWebsite(CreateWebsiteInteractor $createWebsiteInteractor,
+                                  CreateWebsiteRequest $createWebsiteRequest): RedirectResponse
     {
         try {
-            $website = $createWebsiteInteractor->create($createWebsiteRequest);
+            $website = $createWebsiteInteractor->execute($createWebsiteRequest);
             return redirect()->route('websites.index')->with('success', 'Website created successfully.');
         } catch (ValidationException $e) {
             return back()->withErrors($e->getMessage())->withInput();

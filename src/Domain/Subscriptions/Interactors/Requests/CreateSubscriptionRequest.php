@@ -2,12 +2,13 @@
 
 namespace Domain\Subscriptions\Interactors\Requests;
 
+use AllowDynamicProperties;
 use App\Models\Subscription;
 use Domain\ValidationExceptions\ValidationException;
 use Illuminate\Support\Facades\Validator;
 
 
-class CreateSubscriptionRequest
+ class CreateSubscriptionRequest
 {
     public string $email;
     public string $website_id;

@@ -46,7 +46,7 @@ class PostController extends Controller
     {
         try {
 
-            $post = $interactor->create($createPostRequest);
+            $post = $interactor->execute($createPostRequest);
 
             return redirect()->route('posts.index')->with('success', 'Post created successfully.');
         } catch (ValidationException $e) {
