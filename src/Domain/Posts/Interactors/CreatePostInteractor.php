@@ -9,8 +9,12 @@ use App\Models\Subscription;
 use Domain\Posts\Interactors\Requests\CreatePostRequest;
 use Illuminate\Support\Facades\Mail;
 
-class CreatePostInteractor extends \App\Models\Post
+class CreatePostInteractor
 {
+    public function __construct(protected PublishPostInteractor $publishPostInteractor)
+    {
+    }
+
     public function execute(CreatePostRequest $request): Post
     {
         $request->validate();
@@ -22,29 +26,12 @@ class CreatePostInteractor extends \App\Models\Post
         $post->sent = false;
         $post->save();
 
-        $this->postPublishedEmails($post);
+        //dependency inject
+        $this->publishPostInteractor->execute($post);
 
         $post->sent = true;
         $post->save();
 
         return $post;
-    }
-
-    public function postPublishedEmails(Post $post): void
-    {
-
-        $subscribers = Subscription::where('website_id', $post->website_id)->get();
-
-        foreach ($subscribers as $subscriber) {
-
-            if (!SentEmail::where('post_id', $post->id)->where('subscription_id', $subscriber->id)->exists()) {
-                Mail::to($subscriber->email)->send(new PostPublished($post));
-
-                SentEmail::create([
-                    'post_id' => $post->id,
-                    'subscription_id' => $subscriber->id,
-                ]);
-            }
-        }
     }
 }

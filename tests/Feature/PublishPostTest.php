@@ -38,14 +38,14 @@ class PublishPostTest extends TestCase
     // USER PUBLISHES POST TESTS
 
     #[Test]
-    public function can_send_email_to_all_subscribers_when_a_post_is_published(): void
+    public function can_send_email_to_relevant_subscribers_when_a_post_is_published(): void
     {
         Mail::fake();
-        Subscription::factory(5)
+        $relevantSubscription = Subscription::factory(5)
             ->create([
                 'website_id' => $this->websiteId
             ]);
-
+        $irrelevantSubscription = Subscription::factory()->create();
         $post = Post::factory()->create([
             'website_id' => $this->websiteId
         ]);
@@ -54,27 +54,37 @@ class PublishPostTest extends TestCase
         $interactor->execute($post);
 
         Mail::assertSent(PostPublished::class, 5);
+        foreach ($relevantSubscription as $subscription) {
+            $this->assertDatabaseHas('sent_emails', [
+                'subscription_id' => $subscription->id,
+                'post_id' => $post->id,
+            ]);
+        }
+        Mail::assertSent(PostPublished::class, function ($mail) use
+        ($relevantSubscription) {
+            return $mail->hasTo($relevantSubscription);
+        });
+        Mail::assertNotSent(PostPublished::class, function ($mail) use
+            ($irrelevantSubscription) {
+            return $mail->hasTo($irrelevantSubscription->email);
+        });
     }
 
     #[Test]
     public function cannot_send_duplicate_emails_to_a_subscriber_when_a_post_is_published(): void
     {
         Mail::fake();
-
         $post = Post::factory()->create([
             'website_id' => $this->websiteId
         ]);
-
         $oldSubscription = Subscription::factory()->create([
             'website_id' => $this->websiteId,
             'email' => fn () => fake()->unique()->safeEmail(),
         ]);
-
         SentEmail::factory()->create([
             'subscription_id' => $oldSubscription->id,
             'post_id' => $post->id,
         ]);
-
         $newSubscription = Subscription::factory()->create([
             'website_id' => $this->websiteId,
             'email' => fn () => fake()->unique()->safeEmail(),

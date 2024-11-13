@@ -13,11 +13,9 @@ Route::get('/websites', [WebsiteController::class, 'index'])->name('websites.ind
 Route::get('/websites/create', [WebsiteController::class, 'create'])->name('websites.create');
 Route::post('/websites', [WebsiteController::class, 'store'])->name('websites.store');
 
-
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
 Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
-
 
 Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
 Route::get('/subscriptions/create', [SubscriptionController::class, 'create'])->name('subscriptions.create');

@@ -13,11 +13,17 @@ class PublishPostInteractor
 {
     public function execute(Post $post): void
     {
-        $subscribers = Subscription::query()->where('website_id', $post->website_id)->get();
+        $subscribers = Subscription::query()
+            ->where('website_id', $post->website_id)
+            ->get();
 
         foreach ($subscribers as $subscriber) {
-
-            if (!SentEmail::query()->where('post_id', $post->id)->where('subscription_id', $subscriber->id)->exists()) {
+            if (
+                !SentEmail::query()
+               //->where('post_id', $post->id)
+                ->where('subscription_id', $subscriber->id)
+                ->exists()
+            ) {
                 // Send the email
                 Mail::to($subscriber->email)->send(new PostPublished($post));
 

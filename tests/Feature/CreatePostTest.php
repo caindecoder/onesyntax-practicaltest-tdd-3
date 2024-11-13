@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Models\Subscription;
 use App\Models\Website;
 use Domain\Posts\Interactors\CreatePostInteractor;
+use Domain\Posts\Interactors\PublishPostInteractor;
 use Domain\Posts\Interactors\Requests\CreatePostRequest;
 use Domain\ValidationExceptions\ValidationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -48,7 +49,7 @@ class CreatePostTest extends TestCase
         $request->website_id = $this->websiteId;
 
         try {
-            $interactor = new CreatePostInteractor;
+            $interactor = app(CreatePostInteractor::class);
             $interactor->execute($request);
         } catch (ValidationException $e) {
             $this->assertEquals('The title field is required.', $e->getMessage());
@@ -65,7 +66,7 @@ class CreatePostTest extends TestCase
         $request->website_id = $this->websiteId;
 
         try {
-            $interactor = new CreatePostInteractor;
+            $interactor = app( CreatePostInteractor::class);
             $interactor->execute($request);
         } catch (ValidationException $e) {
             $this->assertEquals('The description field is required.', $e->getMessage());
@@ -86,7 +87,7 @@ class CreatePostTest extends TestCase
             $request->title = 'Duplicate Title';
             $request->description = 'Another post description';
             $request->website_id = $this->websiteId;
-            $interactor = new CreatePostInteractor;
+            $interactor = new CreatePostInteractor(new PublishPostInteractor);
             $interactor->execute($request);
         } catch (ValidationException $e) {
             $this->assertEquals('A post with the same title already exists.', $e->getMessage());
@@ -101,7 +102,7 @@ class CreatePostTest extends TestCase
         $request->title = 'Unique Post Title';
         $request->description = 'This is a sample post description.';
         $request->website_id = $this->websiteId;
-        $interactor = new CreatePostInteractor;
+        $interactor = new CreatePostInteractor(new PublishPostInteractor);
         $post = $interactor->execute($request);
 
         $this->assertInstanceOf(Post::class, $post);
@@ -114,7 +115,7 @@ class CreatePostTest extends TestCase
     public function can_send_email_to_all_subscribers_when_a_post_is_created(): void
     {
         Mail::fake();
-        Subscription::factory(5)
+        $subscriptions = Subscription::factory(5)
             ->create([
                 'website_id' => $this->websiteId
             ]);
@@ -124,12 +125,18 @@ class CreatePostTest extends TestCase
         $request->description = $this->postData['description'];
         $request->website_id = $this->websiteId;
 
-        $interactor = new CreatePostInteractor;
+        $interactor = new CreatePostInteractor(new PublishPostInteractor);
         $post = $interactor->execute($request);
 
         $this->assertInstanceOf(Post::class, $post);
         $this->assertTrue($post->sent);
 
         Mail::assertSent(PostPublished::class, 5);
+        foreach ($subscriptions as $subscription) {
+            $this->assertDatabaseHas('sent_emails', [
+                'subscription_id' => $subscription->id,
+                'post_id' => $post->id,
+            ]);
+        }
     }
 }
