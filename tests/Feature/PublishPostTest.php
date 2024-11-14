@@ -33,6 +33,11 @@ class PublishPostTest extends TestCase
             'description' => 'Test Post Description',
             'website_id' => $this->websiteId,
         ];
+
+        Subscription::factory(2)
+            ->create([
+                'website_id' => $website->getKey()
+            ]);
     }
 
     // USER PUBLISHES POST TESTS
@@ -41,13 +46,49 @@ class PublishPostTest extends TestCase
     public function can_send_email_to_relevant_subscribers_when_a_post_is_published(): void
     {
         Mail::fake();
+        $website01 = Website::factory()
+            ->create();
+        $relevantSubscription = Subscription::factory()
+            ->create([
+                'website_id' => $website01->getKey()
+            ]);
+        $post = Post::factory()
+            ->create([
+            'website_id' => $website01->getKey(),
+        ]);
+
+
+        $interactor = new PublishPostInteractor();
+        $interactor->execute($post);
+
+        Mail::assertSent(PostPublished::class, 1);
+        foreach ($relevantSubscription as $subscription) {
+            $this->assertDatabaseHas('sent_emails', [
+                'subscription_id' => $relevantSubscription->id,
+                'post_id' => $post->id,
+            ]);
+        }
+        Mail::assertSent(PostPublished::class, function ($mail) use
+        ($relevantSubscription) {
+            return $mail->hasTo($relevantSubscription);
+        });
+    }
+
+    #[Test]
+    public function can_not_send_email_to_irrelevant_subscribers_when_a_post_is_published(): void
+    {
+        Mail::fake();
+        $website01 = Website::factory()->create();
+        $website02 = Website::factory()->create();
         $relevantSubscription = Subscription::factory(5)
             ->create([
-                'website_id' => $this->websiteId
+                'website_id' => $website01->getKey()
             ]);
-        $irrelevantSubscription = Subscription::factory()->create();
+        $irrelevantSubscription = Subscription::factory()->create([
+            'website_id' => $website02->getKey(),
+        ]);
         $post = Post::factory()->create([
-            'website_id' => $this->websiteId
+            'website_id' => $website01->getKey(),
         ]);
 
         $interactor = new PublishPostInteractor();
@@ -65,7 +106,7 @@ class PublishPostTest extends TestCase
             return $mail->hasTo($relevantSubscription);
         });
         Mail::assertNotSent(PostPublished::class, function ($mail) use
-            ($irrelevantSubscription) {
+        ($irrelevantSubscription) {
             return $mail->hasTo($irrelevantSubscription->email);
         });
     }
@@ -93,7 +134,7 @@ class PublishPostTest extends TestCase
         $interactor = new PublishPostInteractor();
         $interactor->execute($post);
 
-        Mail::assertSent(PostPublished::class, 1);
+        Mail::assertSent(PostPublished::class, 3);
         Mail::assertSent(PostPublished::class, function ($mail) use ($newSubscription) {
             return $mail->hasTo($newSubscription->email);
         });

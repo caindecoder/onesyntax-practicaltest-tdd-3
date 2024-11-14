@@ -17,10 +17,11 @@ class PublishPostInteractor
             ->where('website_id', $post->website_id)
             ->get();
 
+
         foreach ($subscribers as $subscriber) {
             if (
                 !SentEmail::query()
-               //->where('post_id', $post->id)
+                ->where('post_id', $post->id)
                 ->where('subscription_id', $subscriber->id)
                 ->exists()
             ) {
