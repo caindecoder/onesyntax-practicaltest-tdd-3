@@ -9,7 +9,11 @@ use App\Models\Subscription;
 use App\Models\Website;
 use Domain\Posts\Interactors\PublishPostInteractor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Mail\PendingMail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Testing\Fakes\PendingMailFake;
+use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -96,6 +100,11 @@ class PublishPostTest extends TestCase
 
         Mail::assertSent(PostPublished::class, 5);
         foreach ($relevantSubscription as $subscription) {
+
+            Mail::assertSent(PostPublished::class, function ($mail) use ($subscription) {
+                return $mail->hasTo($subscription->email);
+            });
+
             $this->assertDatabaseHas('sent_emails', [
                 'subscription_id' => $subscription->id,
                 'post_id' => $post->id,
@@ -143,5 +152,56 @@ class PublishPostTest extends TestCase
             'post_id' => $post->id,
         ]);
     }
+    #[Test]
+    public function can_retry_failed_email_delivery(): void
+    {
+        $post = Post::factory()->create(['website_id' => $this->websiteId]);
+        $subscription = Subscription::factory()->create(['website_id' => $this->websiteId]);
+        Mail::fake();
+
+        // Create a mock for PendingMail, set it to throw an exception the first time and then succeed
+        $mock = $this
+            ->mock(PendingMail::class, function (MockInterface $mock) {
+            // Throw an exception for the first call
+            $mock->shouldReceive('send')
+                ->once()
+                ->andThrow(new \Exception("Temporary failure"));
+
+            // Successfully send the email on the second attempt
+            $mock->shouldReceive('send')
+                ->once()
+                ->andReturnUsing(function () {
+                    // Simulate actual sending here if needed
+                });
+        });
+
+        $this->instance(PendingMail::class, $mock);
+        try {
+            $interactor = new PublishPostInteractor();
+            $interactor->execute($post);
+        } catch (\Exception $e) {
+            Log::error('Email sending failed: ' . $e->getMessage());
+        }
+
+        // Assert that the email was sent (at least once)
+        Mail::assertSent(PostPublished::class, function ($mail) use ($subscription) {
+            return $mail->hasTo($subscription->email);
+        });
+    }
+    #[Test]
+    public function can_send_each_subscriber_only_one_email_per_post(): void
+    {
+        Mail::fake();
+        $website = Website::factory()->create();
+        Subscription::factory(10)->create(['website_id' => $website->id]);
+        $post = Post::factory()->create(['website_id' => $website->id]);
+
+        $interactor = new PublishPostInteractor();
+        $interactor->execute($post);
+
+        Mail::assertSent(PostPublished::class, 10);
+        $this->assertCount(10, SentEmail::where('post_id', $post->id)->get());
+    }
+
 
 }

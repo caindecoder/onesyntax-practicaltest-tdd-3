@@ -98,6 +98,14 @@ class CreatePostTest extends TestCase
     #[Test]
     public function can_create_a_post()
     {
+        Mail::fake();
+        $website = Website::factory()->create();
+        $this->websiteId = $website->id;
+        Subscription::factory()->count(5)->create([
+            'website_id' => $this->websiteId,
+            'email' => fn() => fake()->unique()->safeEmail(),
+        ]);
+
         $request = new CreatePostRequest;
         $request->title = 'Unique Post Title';
         $request->description = 'This is a sample post description.';
@@ -131,8 +139,10 @@ class CreatePostTest extends TestCase
         $this->assertInstanceOf(Post::class, $post);
         $this->assertTrue($post->sent);
 
-        Mail::assertSent(PostPublished::class, 5);
         foreach ($subscriptions as $subscription) {
+            Mail::assertSent(PostPublished::class, function ($mail) use ($subscription) {
+                return $mail->hasTo($subscription->email);
+            });
             $this->assertDatabaseHas('sent_emails', [
                 'subscription_id' => $subscription->id,
                 'post_id' => $post->id,
