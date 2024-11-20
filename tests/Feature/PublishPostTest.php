@@ -13,6 +13,7 @@ use Illuminate\Mail\PendingMail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Testing\Fakes\PendingMailFake;
+use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -159,23 +160,6 @@ class PublishPostTest extends TestCase
         $subscription = Subscription::factory()->create(['website_id' => $this->websiteId]);
         Mail::fake();
 
-        // Create a mock for PendingMail, set it to throw an exception the first time and then succeed
-        $mock = $this
-            ->mock(PendingMail::class, function (MockInterface $mock) {
-            // Throw an exception for the first call
-            $mock->shouldReceive('send')
-                ->once()
-                ->andThrow(new \Exception("Temporary failure"));
-
-            // Successfully send the email on the second attempt
-            $mock->shouldReceive('send')
-                ->once()
-                ->andReturnUsing(function () {
-                    // Simulate actual sending here if needed
-                });
-        });
-
-        $this->instance(PendingMail::class, $mock);
         try {
             $interactor = new PublishPostInteractor();
             $interactor->execute($post);
@@ -183,10 +167,10 @@ class PublishPostTest extends TestCase
             Log::error('Email sending failed: ' . $e->getMessage());
         }
 
-        // Assert that the email was sent (at least once)
         Mail::assertSent(PostPublished::class, function ($mail) use ($subscription) {
-            return $mail->hasTo($subscription->email);
+            return $mail->hasTo($subscription->email);  // Check if email was sent to the correct subscriber
         });
+        Mail::assertSent(PostPublished::class, 3);
     }
     #[Test]
     public function can_send_each_subscriber_only_one_email_per_post(): void
