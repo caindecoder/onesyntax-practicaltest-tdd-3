@@ -9,12 +9,8 @@ use App\Models\Subscription;
 use App\Models\Website;
 use Domain\Posts\Interactors\PublishPostInteractor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Mail\PendingMail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Testing\Fakes\PendingMailFake;
-use Mockery;
-use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

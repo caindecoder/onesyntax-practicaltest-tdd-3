@@ -24,28 +24,12 @@ class WebsiteController extends Controller
 
     public function store(Request $request, CreateWebsiteInteractor $createWebsiteInteractor)
     {
-        $createWebsiteRequest = new CreateWebsiteRequest();
+        $createWebsiteInteractor->execute(CreateWebsiteRequest::from([
+            'name' => $request->get('name'),
+            'url' => $request->get('url'),
+        ]));
 
-        $createWebsiteRequest->name = $request->input('name');
-        $createWebsiteRequest->url = $request->input('url');
+        return redirect()->route('websites.index')->with('success', 'Website created successfully.');
 
-        return $this->submitWebsite($createWebsiteInteractor, $createWebsiteRequest);
-
-    }
-
-    /**
-     * @param CreateWebsiteInteractor $createWebsiteInteractor
-     * @param CreateWebsiteRequest $createWebsiteRequest
-     * @return RedirectResponse
-     */
-    public function submitWebsite(CreateWebsiteInteractor $createWebsiteInteractor,
-                                  CreateWebsiteRequest $createWebsiteRequest): RedirectResponse
-    {
-        try {
-            $website = $createWebsiteInteractor->execute($createWebsiteRequest);
-            return redirect()->route('websites.index')->with('success', 'Website created successfully.');
-        } catch (ValidationException $e) {
-            return back()->withErrors($e->getMessage())->withInput();
-        }
     }
 }
