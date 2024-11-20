@@ -168,7 +168,7 @@ class PublishPostTest extends TestCase
         }
 
         Mail::assertSent(PostPublished::class, function ($mail) use ($subscription) {
-            return $mail->hasTo($subscription->email);  // Check if email was sent to the correct subscriber
+            return $mail->hasTo($subscription->email);
         });
         Mail::assertSent(PostPublished::class, 3);
     }
