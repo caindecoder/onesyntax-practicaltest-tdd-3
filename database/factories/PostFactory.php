@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Post;
+use App\Models\Website;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PostFactory extends Factory
@@ -14,7 +15,7 @@ class PostFactory extends Factory
         return [
             'title' => $this->faker->sentence,
             'description' => $this->faker->paragraph,
-            'website_id' => \App\Models\Website::factory(),
+            'website_id' => Website::factory(),
             'sent' => false, // Default to not sent
         ];
     }

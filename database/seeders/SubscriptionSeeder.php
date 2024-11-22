@@ -9,6 +9,6 @@ class SubscriptionSeeder extends Seeder
 {
     public function run()
     {
-        \App\Models\Subscription::factory()->count(10)->create();
+        Subscription::factory()->count(10)->create();
     }
 }

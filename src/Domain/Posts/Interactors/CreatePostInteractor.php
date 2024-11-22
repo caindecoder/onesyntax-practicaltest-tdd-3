@@ -2,36 +2,23 @@
 
 namespace Domain\Posts\Interactors;
 
-use App\Mail\PostPublished;
 use App\Models\Post;
-use App\Models\SentEmail;
-use App\Models\Subscription;
 use Domain\Posts\Interactors\Requests\CreatePostRequest;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CreatePostInteractor
 {
-    public function __construct(protected PublishPostInteractor $publishPostInteractor)
+    public function execute(CreatePostRequest $request): void
     {
-    }
-
-    public function execute(CreatePostRequest $request): Post
-    {
-        $request->validate();
-
-        $post = new Post;
-        $post->title = $request->title;
-        $post->description = $request->description;
-        $post->website_id = $request->website_id;
-        $post->sent = false;
-        $post->save();
-
-        //dependency inject
-        $this->publishPostInteractor->execute($post);
-
-        $post->sent = true;
-        $post->save();
-
-        return $post;
+        DB::transaction(function () use ($request) {
+            $post = Post::query()->create([
+                'title' => $request->title,
+                'description' => $request->description,
+                'website_id' => $request->websiteId,
+            ]);
+            Log::info('Post created: ', $post->toArray());
+            app(PublishPostInteractor::class)->execute($post);
+        });
     }
 }

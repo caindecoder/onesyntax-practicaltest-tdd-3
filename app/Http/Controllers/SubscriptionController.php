@@ -35,11 +35,6 @@ class SubscriptionController extends Controller
         return $this->submitSubscription($interactor, $createSubscriptionRequest);
     }
 
-    /**
-     * @param CreateSubscriptionInteractor $interactor
-     * @param CreateSubscriptionRequest $createSubscriptionRequest
-     * @return RedirectResponse
-     */
     public function submitSubscription(CreateSubscriptionInteractor $interactor, CreateSubscriptionRequest $createSubscriptionRequest): RedirectResponse
     {
         try {

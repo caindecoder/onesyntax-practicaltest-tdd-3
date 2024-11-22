@@ -6,8 +6,6 @@ use App\Models\Post;
 use App\Models\Website;
 use Domain\Posts\Interactors\CreatePostInteractor;
 use Domain\Posts\Interactors\Requests\CreatePostRequest;
-use Domain\ValidationExceptions\ValidationException;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -25,32 +23,15 @@ class PostController extends Controller
         return view('createPost.create', compact('websites'));
     }
 
-    public function store(Request $request, CreatePostInteractor $interactor)
+    public function store(Request $request, CreatePostInteractor $createPostInteractor)
     {
-        $createPostRequest = new CreatePostRequest();
+          $createPostInteractor->execute(CreatePostRequest::from([
+              'title' => $request->get('title'),
+              'description' => $request->get('description'),
+              'website_id' => $request->get('website_id')
+          ]));
 
-        $createPostRequest->title = $request->input('title');
-        $createPostRequest->description = $request->input('description');
-        $createPostRequest->website_id = $request->input('website_id');
+          return redirect()->route('posts.index')->with('success', 'Post created successfully.');
 
-
-        return $this->submitPost($interactor, $createPostRequest);
-    }
-
-    /**
-     * @param CreatePostInteractor $interactor
-     * @param CreatePostRequest $createPostRequest
-     * @return RedirectResponse
-     */
-    public function submitPost(CreatePostInteractor $interactor, CreatePostRequest $createPostRequest): RedirectResponse
-    {
-        try {
-
-            $post = $interactor->execute($createPostRequest);
-
-            return redirect()->route('posts.index')->with('success', 'Post created successfully.');
-        } catch (ValidationException $e) {
-            return back()->withErrors($e->getMessage())->withInput();
-        }
     }
 }

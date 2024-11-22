@@ -4,10 +4,12 @@ namespace App\Mail;
 
 use App\Models\Post;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
 use Illuminate\Queue\SerializesModels;
 
-class PostPublished extends Mailable
+class PostPublished extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -18,10 +20,11 @@ class PostPublished extends Mailable
         $this->post = $post;
     }
 
-    public function build()
+    public function content(): Content
     {
-        return $this->subject('New Post Published: ' . $this->post->title)
-            ->view('emails.postPublished');
+        return new Content(
+            view:'emails.postPublished'
+        );
     }
 
 }

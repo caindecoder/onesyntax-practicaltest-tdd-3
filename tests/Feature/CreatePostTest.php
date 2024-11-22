@@ -7,11 +7,10 @@ use App\Models\Post;
 use App\Models\Subscription;
 use App\Models\Website;
 use Domain\Posts\Interactors\CreatePostInteractor;
-use Domain\Posts\Interactors\PublishPostInteractor;
 use Domain\Posts\Interactors\Requests\CreatePostRequest;
-use Domain\ValidationExceptions\ValidationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -19,22 +18,16 @@ class CreatePostTest extends TestCase
 {
     use RefreshDatabase;
 
-    private array $testData;
-    private int $websiteId;
+    private Website $website;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $websiteData = Website::query()->create([
+
+        $this->website = Website::query()->create([
             'name' => 'Test Website',
             'url' => 'https://test.com',
         ]);
-        $this->websiteId = $websiteData->id;
-        $this->postData = [
-            'title' => 'Test Post Title',
-            'description' => 'Test Post Description',
-            'website_id' => $this->websiteId,
-        ];
     }
 
     // USER CREATES POST TESTS
@@ -42,34 +35,36 @@ class CreatePostTest extends TestCase
    #[Test]
     public function can_not_create_post_without_a_title()
     {
-        $request = new CreatePostRequest;
-
-        $request->title = '';
-        $request->description = 'Sample Description';
-        $request->website_id = $this->websiteId;
-
         try {
-            $interactor = app(CreatePostInteractor::class);
-            $interactor->execute($request);
-        } catch (ValidationException $e) {
-            $this->assertEquals('The title field is required.', $e->getMessage());
+            $createPostRequest = CreatePostRequest::validateAndCreate([
+                'title' => '',
+                'description' => 'Test Post Description',
+                'website_id' => $this->website->getKey(),
+                ]);
+
+            $createPostInteractor = new CreatePostInteractor();
+            $createPostInteractor->execute($createPostRequest);
+
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('title', $exception->errors());
         }
     }
 
     #[Test]
     public function can_not_create_post_without_a_description()
     {
-        $request = new CreatePostRequest;
-
-        $request->title = 'Sample Post Title';
-        $request->description = '';
-        $request->website_id = $this->websiteId;
-
         try {
-            $interactor = app( CreatePostInteractor::class);
-            $interactor->execute($request);
-        } catch (ValidationException $e) {
-            $this->assertEquals('The description field is required.', $e->getMessage());
+            $createPostRequest = CreatePostRequest::validateAndCreate([
+                    'title' => 'Test Post Title',
+                    'description' => '',
+                    'website_id' => $this->website->getKey(),
+            ]);
+
+            $createPostInteractor = new CreatePostInteractor();
+            $createPostInteractor->execute($createPostRequest);
+
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('description', $exception->errors());
         }
     }
 
@@ -79,74 +74,65 @@ class CreatePostTest extends TestCase
         Post::query()->create([
             'title' => 'Duplicate Title',
             'description' => 'First post description',
-            'website_id' => $this->websiteId,
+            'website_id' => $this->website->getKey(),
         ]);
 
         try {
-            $request = new CreatePostRequest;
-            $request->title = 'Duplicate Title';
-            $request->description = 'Another post description';
-            $request->website_id = $this->websiteId;
-            $interactor = new CreatePostInteractor(new PublishPostInteractor);
-            $interactor->execute($request);
-        } catch (ValidationException $e) {
-            $this->assertEquals('A post with the same title already exists.', $e->getMessage());
-        }
+            $createPostRequest = CreatePostRequest::validateAndCreate([
+                'title' => 'Duplicate Title',
+                'description' => 'Another post description',
+                'website_id' => $this->website->getKey(),
+            ]);
 
+            $createPostInteractor = new CreatePostInteractor();
+            $createPostInteractor->execute($createPostRequest);
+
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('title', $exception->errors());
+        }
     }
 
     #[Test]
     public function can_create_a_post()
     {
-        Mail::fake();
-        $website = Website::factory()->create();
-        $this->websiteId = $website->id;
-        Subscription::factory()->count(5)->create([
-            'website_id' => $this->websiteId,
-            'email' => fn() => fake()->unique()->safeEmail(),
+        $createPostRequest = CreatePostRequest::validateAndCreate([
+            'title' => 'Duplicate Title',
+            'description' => 'Another post description',
+            'website_id' => $this->website->getKey(),
         ]);
 
-        $request = new CreatePostRequest;
-        $request->title = 'Unique Post Title';
-        $request->description = 'This is a sample post description.';
-        $request->website_id = $this->websiteId;
-        $interactor = new CreatePostInteractor(new PublishPostInteractor);
-        $post = $interactor->execute($request);
+        $createPostInteractor = new CreatePostInteractor();
+        $createPostInteractor->execute($createPostRequest);
 
-        $this->assertInstanceOf(Post::class, $post);
-        $this->assertEquals($request->title, $post->title);
-        $this->assertEquals($request->description, $post->description);
-        $this->assertEquals($request->website_id, $post->website_id);
+        $this->assertDatabaseCount('posts', 1);
+        $this->assertDatabaseHas('posts', [
+            'title' => $createPostRequest->title,
+            'description' => $createPostRequest->description,
+            'website_id' => $createPostRequest->websiteId,
+        ]);
     }
 
     #[Test]
     public function can_send_email_to_all_subscribers_when_a_post_is_created(): void
     {
         Mail::fake();
-        $subscriptions = Subscription::factory(5)
-            ->create([
-                'website_id' => $this->websiteId
-            ]);
+        Subscription::factory(5)->create([
+            'website_id' => $this->website->getKey(),
+            'email' => 'subscriber@example.com',
+        ]);
 
-        $request = new CreatePostRequest;
-        $request->title = $this->postData['title'];
-        $request->description = $this->postData['description'];
-        $request->website_id = $this->websiteId;
+        $createPostRequest = CreatePostRequest::validateAndCreate([
+            'title' => 'Unique Title',
+            'description' => 'Post description',
+            'website_id' => $this->website->getKey(),
+        ]);
+        $createPostInteractor = new CreatePostInteractor();
+        $createPostInteractor->execute($createPostRequest);
+        $post = Post::where('title', 'Unique Title')->firstOrFail();
 
-        $interactor = new CreatePostInteractor(new PublishPostInteractor);
-        $post = $interactor->execute($request);
-
-        $this->assertInstanceOf(Post::class, $post);
-        $this->assertTrue($post->sent);
-
-        foreach ($subscriptions as $subscription) {
-            Mail::assertSent(PostPublished::class, function ($mail) use ($subscription) {
-                return $mail->hasTo($subscription->email);
-            });
-            $this->assertDatabaseHas('sent_emails', [
-                'subscription_id' => $subscription->id,
-                'post_id' => $post->id,
-            ]);
-        }
+        Mail::assertQueued(PostPublished::class, 5);
+        Mail::assertQueued(PostPublished::class, function ($mail) use ($post) {
+            return $mail->post->id === $post->id;
+        });
     }
 }

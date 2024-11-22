@@ -9,6 +9,6 @@ class WebsiteSeeder extends Seeder
 {
     public function run()
     {
-        \App\Models\Website::factory()->count(5)->create();
+        Website::factory()->count(5)->create();
     }
 }

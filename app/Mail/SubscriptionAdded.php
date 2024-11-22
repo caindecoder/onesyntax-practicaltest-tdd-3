@@ -2,13 +2,13 @@
 
 namespace App\Mail;
 
-use App\Models\Post;
 use App\Models\Subscription;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class SubscriptionAdded extends Mailable
+class SubscriptionAdded extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -22,7 +22,7 @@ class SubscriptionAdded extends Mailable
     public function build()
     {
         return $this->subject('New Subscription Added: ' . $this->subscription->title)
-            ->view('emails.subscriptionAdded');
+            ->view('emails.subscriptionAdded', ['subscription' => $this->subscription]);
     }
 
 }

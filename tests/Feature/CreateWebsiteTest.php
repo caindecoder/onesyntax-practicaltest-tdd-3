@@ -79,7 +79,8 @@ class CreateWebsiteTest extends TestCase
 
         } catch (ValidationException $exception) {
             $this->assertArrayHasKey('url', $exception->errors());
-            $this->assertContains('The url has already been taken.', $exception->errors()['url']);
+            $this->assertContains('The url has already been taken.',
+                $exception->errors()['url']);
         }
     }
 

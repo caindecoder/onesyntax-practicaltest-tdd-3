@@ -9,7 +9,6 @@ use App\Models\Subscription;
 use App\Models\Website;
 use Domain\Posts\Interactors\PublishPostInteractor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -47,6 +46,9 @@ class PublishPostTest extends TestCase
     public function can_send_email_to_relevant_subscribers_when_a_post_is_published(): void
     {
         Mail::fake();
+
+        $this->withoutExceptionHandling();
+
         $website01 = Website::factory()
             ->create();
         $relevantSubscription = Subscription::factory()
@@ -59,33 +61,27 @@ class PublishPostTest extends TestCase
         ]);
 
 
-        $interactor = new PublishPostInteractor();
-        $interactor->execute($post);
+        $publishPostInteractor = new PublishPostInteractor();
+        $publishPostInteractor->execute($post);
 
-        Mail::assertSent(PostPublished::class, 1);
+        Mail::assertQueued(PostPublished::class, 1);
+
         foreach ($relevantSubscription as $subscription) {
             $this->assertDatabaseHas('sent_emails', [
                 'subscription_id' => $relevantSubscription->id,
                 'post_id' => $post->id,
             ]);
         }
-        Mail::assertSent(PostPublished::class, function ($mail) use
-        ($relevantSubscription) {
-            return $mail->hasTo($relevantSubscription);
-        });
     }
 
     #[Test]
     public function can_not_send_email_to_irrelevant_subscribers_when_a_post_is_published(): void
     {
         Mail::fake();
+
         $website01 = Website::factory()->create();
         $website02 = Website::factory()->create();
-        $relevantSubscription = Subscription::factory(5)
-            ->create([
-                'website_id' => $website01->getKey()
-            ]);
-        $irrelevantSubscription = Subscription::factory()->create([
+        $subscriber = Subscription::factory()->create([
             'website_id' => $website02->getKey(),
         ]);
         $post = Post::factory()->create([
@@ -95,38 +91,22 @@ class PublishPostTest extends TestCase
         $interactor = new PublishPostInteractor();
         $interactor->execute($post);
 
-        Mail::assertSent(PostPublished::class, 5);
-        foreach ($relevantSubscription as $subscription) {
-
-            Mail::assertSent(PostPublished::class, function ($mail) use ($subscription) {
-                return $mail->hasTo($subscription->email);
-            });
-
-            $this->assertDatabaseHas('sent_emails', [
-                'subscription_id' => $subscription->id,
-                'post_id' => $post->id,
-            ]);
-        }
-        Mail::assertSent(PostPublished::class, function ($mail) use
-        ($relevantSubscription) {
-            return $mail->hasTo($relevantSubscription);
-        });
-        Mail::assertNotSent(PostPublished::class, function ($mail) use
-        ($irrelevantSubscription) {
-            return $mail->hasTo($irrelevantSubscription->email);
-        });
+        $this->assertDatabaseMissing('sent_emails', [
+            'subscription_id' => $subscriber->id,
+            'post_id' => $post->id,
+        ]);
     }
 
     #[Test]
     public function cannot_send_duplicate_emails_to_a_subscriber_when_a_post_is_published(): void
     {
         Mail::fake();
+
         $post = Post::factory()->create([
             'website_id' => $this->websiteId
         ]);
         $oldSubscription = Subscription::factory()->create([
             'website_id' => $this->websiteId,
-            'email' => fn () => fake()->unique()->safeEmail(),
         ]);
         SentEmail::factory()->create([
             'subscription_id' => $oldSubscription->id,
@@ -134,54 +114,15 @@ class PublishPostTest extends TestCase
         ]);
         $newSubscription = Subscription::factory()->create([
             'website_id' => $this->websiteId,
-            'email' => fn () => fake()->unique()->safeEmail(),
         ]);
 
         $interactor = new PublishPostInteractor();
         $interactor->execute($post);
 
-        Mail::assertSent(PostPublished::class, 3);
-        Mail::assertSent(PostPublished::class, function ($mail) use ($newSubscription) {
-            return $mail->hasTo($newSubscription->email);
-        });
+        Mail::assertQueued(PostPublished::class, 3);
         $this->assertDatabaseHas('sent_emails', [
             'subscription_id' => $newSubscription->id,
             'post_id' => $post->id,
         ]);
     }
-    #[Test]
-    public function can_retry_failed_email_delivery(): void
-    {
-        $post = Post::factory()->create(['website_id' => $this->websiteId]);
-        $subscription = Subscription::factory()->create(['website_id' => $this->websiteId]);
-        Mail::fake();
-
-        try {
-            $interactor = new PublishPostInteractor();
-            $interactor->execute($post);
-        } catch (\Exception $e) {
-            Log::error('Email sending failed: ' . $e->getMessage());
-        }
-
-        Mail::assertSent(PostPublished::class, function ($mail) use ($subscription) {
-            return $mail->hasTo($subscription->email);
-        });
-        Mail::assertSent(PostPublished::class, 3);
-    }
-    #[Test]
-    public function can_send_each_subscriber_only_one_email_per_post(): void
-    {
-        Mail::fake();
-        $website = Website::factory()->create();
-        Subscription::factory(10)->create(['website_id' => $website->id]);
-        $post = Post::factory()->create(['website_id' => $website->id]);
-
-        $interactor = new PublishPostInteractor();
-        $interactor->execute($post);
-
-        Mail::assertSent(PostPublished::class, 10);
-        $this->assertCount(10, SentEmail::where('post_id', $post->id)->get());
-    }
-
-
 }

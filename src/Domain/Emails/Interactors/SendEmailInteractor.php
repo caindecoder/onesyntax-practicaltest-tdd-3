@@ -7,13 +7,11 @@ use App\Models\Post;
 use App\Models\Subscription;
 use App\Models\SentEmail;
 use App\Models\Website;
-use Domain\Emails\Interactors\Requests\SendEmailRequest;
 
 class SendEmailInteractor
 {
     public function sendPostEmails(Post $post): void
     {
-
         $subscribers = Subscription::whereDoesntHave('sentEmails', function ($query) use ($post) {
             $query->where('post_id', $post->id);
         })->get();
