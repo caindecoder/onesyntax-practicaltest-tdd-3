@@ -21,7 +21,6 @@ class CreatePostsTable extends Migration
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      *

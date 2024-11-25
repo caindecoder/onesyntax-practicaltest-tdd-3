@@ -34,7 +34,6 @@ class SendEmailsCommand extends Command
         foreach ($subscribers as $subscriber) {
             dispatch(new SendPostEmails($subscriber, $post));
         }
-
         $this->info('Emails sent successfully!');
     }
 }

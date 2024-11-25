@@ -26,8 +26,6 @@ class WebsiteController extends Controller
             'name' => $request->get('name'),
             'url' => $request->get('url'),
         ]));
-
         return redirect()->route('websites.index')->with('success', 'Website created successfully.');
-
     }
 }

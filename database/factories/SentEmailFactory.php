@@ -14,8 +14,8 @@ class SentEmailFactory extends Factory
     public function definition()
     {
         return [
-            'subscription_id' => Subscription::factory(),  // Automatically create a Subscription
-            'post_id' => Post::factory(),                    // Automatically create a Post
+            'subscription_id' => Subscription::factory(),
+            'post_id' => Post::factory(),
         ];
     }
 }

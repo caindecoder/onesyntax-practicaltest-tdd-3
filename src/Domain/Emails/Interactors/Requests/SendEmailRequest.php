@@ -2,7 +2,6 @@
 
 namespace Domain\Emails\Interactors\Requests;
 
-
 use App\Models\Post;
 
 class SendEmailRequest

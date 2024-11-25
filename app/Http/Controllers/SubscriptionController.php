@@ -21,7 +21,6 @@ class SubscriptionController extends Controller
 
     public function create()
     {
-
         $websites = Website::all();
         return view('createSubscription.create', compact('websites'));
     }
@@ -38,9 +37,7 @@ class SubscriptionController extends Controller
     public function submitSubscription(CreateSubscriptionInteractor $interactor, CreateSubscriptionRequest $createSubscriptionRequest): RedirectResponse
     {
         try {
-
             $subscription = $interactor->execute($createSubscriptionRequest);
-
             return redirect()->route('subscriptions.index')->with('success', 'Subscription created successfully.');
         } catch (ValidationException $e) {
             return back()->withErrors($e->getMessage())->withInput();

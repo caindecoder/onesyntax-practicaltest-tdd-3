@@ -16,7 +16,7 @@ class PostFactory extends Factory
             'title' => $this->faker->sentence,
             'description' => $this->faker->paragraph,
             'website_id' => Website::factory(),
-            'sent' => false, // Default to not sent
+            'sent' => false,
         ];
     }
 }

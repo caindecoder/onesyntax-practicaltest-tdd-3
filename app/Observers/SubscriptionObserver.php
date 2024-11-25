@@ -4,8 +4,6 @@
 namespace App\Observers;
 
 use App\Models\Post;
-use App\Jobs\SendPostEmails;
-use App\Models\SentEmail;
 use App\Models\Subscription;
 use App\Models\Website;
 

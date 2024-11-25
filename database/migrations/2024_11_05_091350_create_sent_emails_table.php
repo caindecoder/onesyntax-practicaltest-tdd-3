@@ -15,7 +15,6 @@ class CreateSentEmailsTable extends Migration
             $table->timestamps();
         });
     }
-
     public function down()
     {
         Schema::dropIfExists('sent_emails');

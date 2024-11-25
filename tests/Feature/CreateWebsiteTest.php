@@ -15,7 +15,6 @@ use Tests\TestCase;
 class CreateWebsiteTest extends TestCase
 {
     use refreshDatabase;
-
     private array $testData;
 
     protected function setUp(): void

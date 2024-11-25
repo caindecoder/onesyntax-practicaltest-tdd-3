@@ -17,7 +17,6 @@ class WebsiteCreated extends Mailable
     {
         $this->website = $website;
     }
-
     public function build()
     {
         return $this->view('emails.websiteCreated')

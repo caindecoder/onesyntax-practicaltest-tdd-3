@@ -30,8 +30,6 @@ class PostController extends Controller
               'description' => $request->get('description'),
               'website_id' => $request->get('website_id')
           ]));
-
           return redirect()->route('posts.index')->with('success', 'Post created successfully.');
-
     }
 }

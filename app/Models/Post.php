@@ -16,7 +16,6 @@ class Post extends Model
         'description',
         'website_id',
     ];
-
     public function website()
     {
         return $this->belongsTo(Website::class);

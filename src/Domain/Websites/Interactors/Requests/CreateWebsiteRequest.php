@@ -4,7 +4,6 @@ namespace Domain\Websites\Interactors\Requests;
 
 use Spatie\LaravelData\Data;
 
-
 class CreateWebsiteRequest extends Data
 {
     public string $name;

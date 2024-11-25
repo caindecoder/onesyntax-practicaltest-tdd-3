@@ -2,7 +2,7 @@
 namespace App\Observers;
 
 use App\Models\Website;
-use App\Mail\WebsiteCreated; // Mailable class to handle email content
+use App\Mail\WebsiteCreated;
 use Illuminate\Support\Facades\Mail;
 
 class WebsiteObserver

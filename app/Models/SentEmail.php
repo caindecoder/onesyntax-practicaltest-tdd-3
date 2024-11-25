@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class SentEmail extends Model
 {
     use HasFactory;
-
     protected $fillable = ['subscription_id', 'post_id'];
 
     // Define a relationship to Subscription

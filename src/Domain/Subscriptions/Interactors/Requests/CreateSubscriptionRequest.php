@@ -8,7 +8,6 @@ use Spatie\LaravelData\Data;
 class CreateSubscriptionRequest extends Data
 {
     #[MapInputName(('website_id'))]
-
     public string $websiteId;
     public string $email;
 

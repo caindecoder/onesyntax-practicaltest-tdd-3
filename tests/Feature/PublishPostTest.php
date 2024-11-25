@@ -16,7 +16,6 @@ use Tests\TestCase;
 class PublishPostTest extends TestCase
 {
     use RefreshDatabase;
-
     private array $postData;
     private int $websiteId;
 
@@ -48,7 +47,6 @@ class PublishPostTest extends TestCase
         Mail::fake();
 
         $this->withoutExceptionHandling();
-
         $website01 = Website::factory()
             ->create();
         $relevantSubscription = Subscription::factory()
@@ -60,12 +58,10 @@ class PublishPostTest extends TestCase
             'website_id' => $website01->getKey(),
         ]);
 
-
         $publishPostInteractor = new PublishPostInteractor();
         $publishPostInteractor->execute($post);
 
         Mail::assertQueued(PostPublished::class, 1);
-
         foreach ($relevantSubscription as $subscription) {
             $this->assertDatabaseHas('sent_emails', [
                 'subscription_id' => $relevantSubscription->id,

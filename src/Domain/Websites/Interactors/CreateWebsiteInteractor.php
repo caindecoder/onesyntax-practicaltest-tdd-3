@@ -6,7 +6,6 @@ use App\Models\Website;
 use Domain\Websites\Interactors\Requests\CreateWebsiteRequest;
 use Illuminate\Support\Facades\DB;
 
-
 class CreateWebsiteInteractor
 {
     public function execute(CreateWebsiteRequest $request): void

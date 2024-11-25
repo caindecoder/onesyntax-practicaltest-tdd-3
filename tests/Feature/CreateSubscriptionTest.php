@@ -17,15 +17,12 @@ use Tests\TestCase;
 class CreateSubscriptionTest extends TestCase
 {
     use RefreshDatabase;
-
     private Subscription $subscription;
-
     private array $testData;
 
     protected function setUp(): void
     {
         parent::setUp();
-
         $websiteData = Website::create([
             'name' => 'Test Website',
             'url' => 'https://test.com',
@@ -34,7 +31,6 @@ class CreateSubscriptionTest extends TestCase
             'email' => 'user01@example.com',
             'website_id' => $websiteData->id,
         ]);
-
     }
 
     // USER CREATES SUBSCRIPTION TESTS
@@ -83,13 +79,12 @@ class CreateSubscriptionTest extends TestCase
     public function can_create_subscription()
     {
         $website = Website::factory()->create();
-
-            $createSubscriptionRequest = CreateSubscriptionRequest::validateAndCreate([
-                'email' => 'user@example.com',
-                'website_id' => $website->id,
-            ]);
-            $createSubscriptionInteractor = new CreateSubscriptionInteractor();
-            $createSubscriptionInteractor->execute($createSubscriptionRequest);
+        $createSubscriptionRequest = CreateSubscriptionRequest::validateAndCreate([
+            'email' => 'user@example.com',
+            'website_id' => $website->id,
+        ]);
+        $createSubscriptionInteractor = new CreateSubscriptionInteractor();
+        $createSubscriptionInteractor->execute($createSubscriptionRequest);
 
         $this->assertDatabaseHas('subscriptions', [
             'email' => $createSubscriptionRequest->email,

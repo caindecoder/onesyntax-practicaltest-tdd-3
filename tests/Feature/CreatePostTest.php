@@ -17,13 +17,10 @@ use Tests\TestCase;
 class CreatePostTest extends TestCase
 {
     use RefreshDatabase;
-
     private Website $website;
-
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->website = Website::query()->create([
             'name' => 'Test Website',
             'url' => 'https://test.com',

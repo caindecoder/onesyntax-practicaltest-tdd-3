@@ -12,7 +12,6 @@ class AddSentToPostsTable extends Migration
             $table->boolean('sent')->default(false);
         });
     }
-
     public function down()
     {
         Schema::table('posts', function (Blueprint $table) {
