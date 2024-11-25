@@ -4,22 +4,20 @@ namespace Domain\Websites\Interactors;
 
 use App\Models\Website;
 use Domain\Websites\Interactors\Requests\CreateWebsiteRequest;
+use Illuminate\Support\Facades\DB;
 
 class CreateWebsiteInteractor
 {
-    public function create(CreateWebsiteRequest $request): Website
+    public function execute(CreateWebsiteRequest $request): void
     {
-        $request->validate();
-
-        // Create a new website instance
-        $website = new Website;
-        $website->name = $request->name;
-        $website->url = $request->url;
-
-        // Save the website to the database
-        $website->save();
-
-        return $website;
+        DB::transaction(function () use ($request) {
+            Website::query()->create([
+                'name' => $request->name,
+                'url' => $request->url,
+            ]);
+        });
     }
+
+
 }
 

@@ -2,39 +2,22 @@
 
 namespace Domain\Posts\Interactors\Requests;
 
-use App\Models\Post;
-use Domain\ValidationExceptions\ValidationException;
+use Spatie\LaravelData\Attributes\MapInputName;
+use Spatie\LaravelData\Data;
 
-
-class CreatePostRequest
+class CreatePostRequest extends Data
 {
+    #[MapInputName(('website_id'))]
+    public string $websiteId;
     public string $title;
     public string $description;
 
-    /**
-     * Validates the request data.
-     *
-     * @throws ValidationException
-     */
-    public function validate(): void
-    {
-        if (empty($this->title)) {
-            throw new ValidationException('Post title is required.');
-        }
-
-        if (empty($this->description)) {
-            throw new ValidationException('Post description is required.');
-        }
-
-        if ($this->postTitleAlreadyExists()) {
-            throw new ValidationException('A post with the same title already exists.');
-        }
-    }
-
-    protected function postTitleAlreadyExists(): bool
-    {
-        return Post::query()
-            ->where('title', $this->title)
-            ->exists();
-    }
+   public static function rules(): array
+   {
+       return [
+           'website_id' => ['required', 'exists:websites,id'],
+           'title' => ['required', 'string', 'unique:posts,title'],
+           'description' => ['required', 'string'],
+       ];
+   }
 }

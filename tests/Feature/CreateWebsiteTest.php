@@ -2,18 +2,19 @@
 
 namespace Tests\Feature;
 
+use App\Mail\WebsiteCreated;
 use App\Models\Website;
-use Domain\ValidationExceptions\ValidationException;
 use Domain\Websites\Interactors\CreateWebsiteInteractor;
 use Domain\Websites\Interactors\Requests\CreateWebsiteRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CreateWebsiteTest extends TestCase
 {
     use refreshDatabase;
-
     private array $testData;
 
     protected function setUp(): void
@@ -25,35 +26,39 @@ class CreateWebsiteTest extends TestCase
         ];
     }
 
+    // USER CREATES WEBSITES TESTS
+
     #[Test]
     public function can_not_create_website_without_a_name(): void
     {
-        $request = new CreateWebsiteRequest;
-
-        $request->name = '';
-        $request->url = 'https://example.com';
-
         try {
-            $interactor = new CreateWebsiteInteractor;
-            $interactor->create($request);
-        } catch (ValidationException $e) {
-            $this->assertEquals('Website name is required.', $e->getMessage());
+            $createWebsiteRequest = CreateWebsiteRequest::validateAndCreate([
+                'name' => '',
+                'url' => 'https://example.com',
+            ]);
+
+            $createWebsiteInteractor = new CreateWebsiteInteractor();
+            $createWebsiteInteractor->execute($createWebsiteRequest);
+
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('name', $exception->errors());
         }
     }
 
     #[Test]
     public function can_not_create_website_without_a_url(): void
     {
-        $request = new CreateWebsiteRequest;
-
-        $request->name = 'Example Website';
-        $request->url = '';
-
         try {
-            $interactor = new CreateWebsiteInteractor();
-            $interactor->create($request);
-        } catch (ValidationException $e) {
-            $this->assertEquals('Website URL is required.', $e->getMessage());
+            $createWebsiteRequest = CreateWebsiteRequest::validateAndCreate([
+                'name' => 'Website Test',
+                'url' => '',
+            ]);
+
+            $createWebsiteInteractor = new CreateWebsiteInteractor();
+            $createWebsiteInteractor->execute($createWebsiteRequest);
+
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('url', $exception->errors());
         }
     }
 
@@ -62,43 +67,52 @@ class CreateWebsiteTest extends TestCase
     {
         Website::create($this->testData);
 
-        $request = new CreateWebsiteRequest();
-
-        $request->name = 'Example Website';
-        $request->url = 'https://example.com';
-
-        Website::create($this->testData);
-
         try {
-            $request->validate($request);
-            $interactor = new CreateWebsiteInteractor();
-            $interactor->create($request);
-        } catch (ValidationException $e) {
-            $this->assertEquals('A website with the same name or URL already exists.', $e->getMessage());
+            $createWebsiteRequest = CreateWebsiteRequest::validateAndCreate([
+                'name' => 'Website Test',
+                'url' => 'https://example.com',
+            ]);
+
+            $createWebsiteInteractor = new CreateWebsiteInteractor();
+            $createWebsiteInteractor->execute($createWebsiteRequest);
+
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('url', $exception->errors());
+            $this->assertContains('The url has already been taken.',
+                $exception->errors()['url']);
         }
     }
 
     #[Test]
     public function can_create_website(): void
     {
-        $request = new CreateWebsiteRequest();
-
-        $request->name = 'Example Website';
-        $request->url = 'https://example.com';
-
-        $interactor = new CreateWebsiteInteractor();
-
-        $request->validate($request);
-        $website = $interactor->create($request);
-
-        $this->assertInstanceOf(Website::class, $website);
-        $this->assertEquals($request->name, $website->name);
-        $this->assertEquals($request->url, $website->url);
-
-        $this->assertDatabaseHas('websites', [
-            'name' => $request->name,
-            'url' => $request->url,
+        $createWebsiteRequest = CreateWebsiteRequest::validateAndCreate([
+            'name' => 'Website Test',
+            'url' => 'https://example.com',
         ]);
+        $createWebsiteInteractor = new CreateWebsiteInteractor();
+        $createWebsiteInteractor->execute($createWebsiteRequest);
+
+        $website = Website::where('url', 'https://example.com')->first();
+        $this->assertNotNull($website);
+        $this->assertEquals('Website Test', $website->name);
+        $this->assertEquals('https://example.com', $website->url);
     }
 
+    #[Test]
+    public function can_send_email_when_a_website_is_created(): void
+    {
+        Mail::fake();
+        $createWebsiteRequest = new CreateWebsiteRequest;
+        $createWebsiteRequest->name = 'Example Website';
+        $createWebsiteRequest->url = 'https://example.com';
+
+        $createWebsiteInteractor = new CreateWebsiteInteractor;
+        $createWebsiteInteractor->execute($createWebsiteRequest);
+
+        Mail::assertSent(WebsiteCreated::class, function ($mail) {
+            return $mail->hasTo('admin@example.com');
+        });
+
+    }
 }

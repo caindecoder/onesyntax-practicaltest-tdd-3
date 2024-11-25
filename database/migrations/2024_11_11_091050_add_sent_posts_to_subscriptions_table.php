@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('websites', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('url');
-            $table->timestamps();
+        Schema::table('subscriptions', function (Blueprint $table) {
+            $table->boolean('sent_posts')->default(false);
         });
     }
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('websites');
+        Schema::table('subscriptions', function (Blueprint $table) {
+            $table->dropColumn('sent_posts');
+        });
     }
 };

@@ -3,27 +3,24 @@
 namespace App\Providers;
 
 use App\Models\Post;
+use App\Models\Subscription;
 use App\Models\Website;
 use App\Observers\PostObserver;
+use App\Observers\SubscriptionObserver;
 use App\Observers\WebsiteObserver;
 use Illuminate\Support\ServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
+class EventServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Register any events for your application.
+     *
+     * @return void
      */
-    public function register(): void
-    {
-        //
-    }
-
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
+    public function boot()
     {
         Website::observe(WebsiteObserver::class);
         Post::observe(PostObserver::class);
+        Subscription::observe(SubscriptionObserver::class);
     }
 }

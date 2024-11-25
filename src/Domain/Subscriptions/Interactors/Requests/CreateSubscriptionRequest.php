@@ -2,33 +2,20 @@
 
 namespace Domain\Subscriptions\Interactors\Requests;
 
-use App\Models\Subscription;
-use Domain\ValidationExceptions\ValidationException;
+use Spatie\LaravelData\Attributes\MapInputName;
+use Spatie\LaravelData\Data;
 
-
-class CreateSubscriptionRequest
+class CreateSubscriptionRequest extends Data
 {
+    #[MapInputName(('website_id'))]
+    public string $websiteId;
     public string $email;
-    public string $website_id;
 
-    public function validate(): void
+    public static function rules(): array
     {
-        if (empty($this->email) || empty($this->website_id)) {
-            throw new ValidationException('Email and Website ID are required.');
-        }
-
-        if ($this->emailAlreadyExists()) {
-            throw new ValidationException('Subscription already exists for this email and website.');
-        }
-
+        return [
+            'website_id' => 'required|integer|exists:websites,id',
+            'email' => 'required|string|email|unique:subscriptions,email',
+        ];
     }
-
-    protected function emailAlreadyExists(): bool
-    {
-        return Subscription::query()
-            ->where('email', $this->email)
-            ->orWhere('website_id', $this->website_id)
-            ->exists();
-    }
-
 }
