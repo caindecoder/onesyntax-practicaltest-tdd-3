@@ -21,16 +21,5 @@ Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('su
 Route::get('/subscriptions/create', [SubscriptionController::class, 'create'])->name('subscriptions.create');
 Route::post('/subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
 
-//Vue
-Route::get('/{pathMatch}', function () {
-    return view('welcome');
-})->where('pathMatch', '.*');
+//Vue Routes
 
-Route::get('/api/websites', [WebsiteController::class, 'index']);
-Route::post('/api/websites', [WebsiteController::class, 'store']);
-
-Route::get('/api/subscriptions', [SubscriptionController::class, 'index']);
-Route::post('/api/subscriptions', [SubscriptionController::class, 'store']);
-
-Route::get('/api/posts', [PostController::class, 'index']);
-Route::post('/api/posts', [PostController::class, 'store']);
