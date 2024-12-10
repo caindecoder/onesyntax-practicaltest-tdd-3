@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import home from '../components/HomePage.vue';
-import createWebsite from '../components/CreateWebsite.vue';
-import createPost from '../components/CreatePost.vue';
-import createSubscription from '../components/CreaateSubscription.vue';
-import notFoundPage from '../components/NotFoundPage.vue';
+import home from '../views/homePage/HomePage.vue';
+import createWebsite from '../views/createWebsite/CreateWebsite.vue';
+import createPost from '../views/createPost/CreatePost.vue';
+import createSubscription from '../views/createSubscription/CreateSubscription.vue';
+import notFoundPage from '../views/notFoundPage/NotFoundPage.vue';
 
 const routes = [
     {
