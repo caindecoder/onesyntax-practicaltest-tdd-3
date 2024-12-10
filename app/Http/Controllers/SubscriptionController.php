@@ -7,6 +7,7 @@ use App\Models\Website;
 use Domain\Subscriptions\Interactors\CreateSubscriptionInteractor;
 use Domain\Subscriptions\Interactors\Requests\CreateSubscriptionRequest;
 use Domain\ValidationExceptions\ValidationException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -14,15 +15,14 @@ class SubscriptionController extends Controller
 {
     public function index()
     {
-        $subscriptions = Subscription::all();
-        $websites = Website::all();
-        return view('createSubscription.index', compact('subscriptions', 'websites'));
+        $subscriptions = Subscription::with('website')->get();
+        return response()->json($subscriptions);
     }
 
     public function create()
     {
         $websites = Website::all();
-        return view('createSubscription.create', compact('websites'));
+        return response()->json(['websites' => $websites]);
     }
 
     public function store(Request $request, CreateSubscriptionInteractor $interactor)
@@ -34,13 +34,18 @@ class SubscriptionController extends Controller
         return $this->submitSubscription($interactor, $createSubscriptionRequest);
     }
 
-    public function submitSubscription(CreateSubscriptionInteractor $interactor, CreateSubscriptionRequest $createSubscriptionRequest): RedirectResponse
+    public function submitSubscription(CreateSubscriptionInteractor $interactor, CreateSubscriptionRequest $createSubscriptionRequest): JsonResponse
     {
         try {
             $subscription = $interactor->execute($createSubscriptionRequest);
-            return redirect()->route('subscriptions.index')->with('success', 'Subscription created successfully.');
+            return response()->json([
+                'message' => 'Subscription created successfully.',
+                'subscription' => $subscription,
+            ]);
         } catch (ValidationException $e) {
-            return back()->withErrors($e->getMessage())->withInput();
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], 400);
         }
     }
 }

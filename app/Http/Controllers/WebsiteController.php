@@ -11,13 +11,12 @@ class WebsiteController extends Controller
 {
     public function index()
     {
-        $websites = Website::all();
-        return view('createWebsite.index', compact('websites'));
+        return response()->json(Website::all());
     }
 
     public function create()
     {
-        return view('createWebsite.create');
+        return response()->json(['message' => 'Create website page']);
     }
 
     public function store(Request $request, CreateWebsiteInteractor $createWebsiteInteractor)
@@ -26,6 +25,8 @@ class WebsiteController extends Controller
             'name' => $request->get('name'),
             'url' => $request->get('url'),
         ]));
-        return redirect()->route('websites.index')->with('success', 'Website created successfully.');
+
+        return redirect()->route('website.index')
+            ->with('success', 'Website created successfully.');
     }
 }
