@@ -13,7 +13,7 @@ export default {
     <ul class="subscription-list">
         <li v-for="subscription in subscriptions" :key="subscription.id">
             <h3>{{ subscription.email }}</h3>
-            <p>Subscribed to: {{ subscription.website_name }}</p>
+            <p>Website ID: {{ subscription.website_id }}</p>
         </li>
     </ul>
 </template>

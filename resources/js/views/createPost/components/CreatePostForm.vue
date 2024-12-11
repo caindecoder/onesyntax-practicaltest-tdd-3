@@ -1,3 +1,4 @@
+
 <script>
 export default {
     props: {
@@ -8,53 +9,44 @@ export default {
     },
     data() {
         return {
-            title: '',
-            description: '',
-            websiteId: '',
+            post: {
+                title: '',
+                description: '',
+                website_id: null,
+            },
         };
     },
+    emits: ['postCreated'],
     methods: {
-        async submitForm() {
-            try {
-                const response = await fetch('/api/posts', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        title: this.title,
-                        description: this.description,
-                        website_id: this.websiteId,
-                    }),
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    this.$emit('postCreated', data.post);
-                    this.title = '';
-                    this.description = '';
-                    this.websiteId = '';
-                } else {
-                    alert(`Error: ${data.error}`);
-                }
-            } catch (error) {
-                console.error('Error creating post:', error);
-            }
+        submitPost() {
+            this.$emit('postCreated', { ...this.post });
+            this.post = { title: '', description: '', website_id: null }; // Reset form
         },
     },
 };
 </script>
 
 <template>
-    <form @submit.prevent="submitForm" class="create-post-form">
-        <input v-model="title" type="text" placeholder="Post Title" required />
-        <textarea v-model="description" placeholder="Post Description" required></textarea>
-        <select v-model="websiteId" required>
-            <option value="" disabled selected>Select a Website</option>
-            <option v-for="website in websites" :key="website.id" :value="website.id">
-                {{ website.name }}
-            </option>
-        </select>
+    <form @submit.prevent="submitPost" class="create-post-form">
+        <div class="create-post-form">
+            <label for="title">Title:</label>
+            <input id="title" v-model="post.title" required/>
+        </div>
+
+        <div class="create-post-form">
+            <label for="description">Description:</label>
+            <textarea id="description" v-model="post.description" required></textarea>
+        </div>
+
+        <div class="create-post-form">
+            <label for="website">Website:</label>
+            <select id="website" v-model="post.website_id" required>
+                <option v-for="website in websites" :key="website.id" :value="website.id">
+                    {{ website.name }}
+                </option>
+            </select>
+        </div>
+
         <button type="submit">Create Post</button>
     </form>
 </template>
@@ -71,6 +63,8 @@ export default {
 .create-post-form select {
     padding: 10px;
     font-size: 1rem;
+    border-radius: 5px;
+    border: #1a202c 1px solid
 }
 .create-post-form button {
     padding: 10px;

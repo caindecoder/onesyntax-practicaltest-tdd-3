@@ -1,4 +1,5 @@
 <script>
+import { useSubscription } from './composables/useSubscription.js';
 import CreateSubscriptionForm from './components/CreateSubscriptionForm.vue';
 import SubscriptionList from './components/SubscriptionList.vue';
 import Notification from './components/Notification.vue';
@@ -9,37 +10,32 @@ export default {
         SubscriptionList,
         Notification,
     },
-    data() {
-        return {
-            subscriptions: [],
-            websites: [],
-            message: '',
-            messageType: '', // 'success' or 'error'
-        };
-    },
-    mounted() {
-        this.fetchData();
-    },
-    methods: {
-        async fetchData() {
-            try {
-                const [subscriptionsResponse, websitesResponse] = await Promise.all([
-                    fetch('/api/subscriptions'),
-                    fetch('/api/websites'),
-                ]);
+    setup() {
+        const {
+            subscriptions,
+            websites,
+            message,
+            messageType,
+            fetchSubscriptions,
+            fetchWebsites,
+            createSubscription,
+        } = useSubscription();
 
-                this.subscriptions = await subscriptionsResponse.json();
-                this.websites = await websitesResponse.json();
-            } catch (error) {
-                this.message = 'Error fetching data.';
-                this.messageType = 'error';
-            }
-        },
-        handleSubscriptionCreated(newSubscription) {
-            this.subscriptions.push(newSubscription);
-            this.message = 'Subscription created successfully.';
-            this.messageType = 'success';
-        },
+        // Load subscriptions and websites on component mount
+        fetchSubscriptions();
+        fetchWebsites();
+
+        const handleSubscriptionCreated = (subscriptionData) => {
+            createSubscription(subscriptionData);
+        };
+
+        return {
+            subscriptions,
+            websites,
+            message,
+            messageType,
+            handleSubscriptionCreated,
+        };
     },
 };
 </script>

@@ -51,6 +51,8 @@ export default {
 .create-website-form input {
     padding: 10px;
     font-size: 1rem;
+    border-radius: 5px;
+    border: #1a202c 1px solid;
 }
 .create-website-form button {
     padding: 10px;

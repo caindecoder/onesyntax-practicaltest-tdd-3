@@ -1,4 +1,5 @@
 <script>
+import { useWebsite } from './composables/useWebsite.js';
 import CreateWebsiteForm from './components/CreateWebsiteForm.vue';
 import WebsiteList from './components/WebsiteList.vue';
 import Notification from './components/Notification.vue';
@@ -9,39 +10,28 @@ export default {
         WebsiteList,
         Notification,
     },
-    data() {
-        return {
-            websites: [],
-            message: '',
-            messageType: '', // 'success' or 'error'
+    setup() {
+        const { websites, message, messageType, fetchWebsites, createWebsite } = useWebsite();
+
+        fetchWebsites();
+
+        const handleWebsiteCreated = (websiteData) => {
+            createWebsite(websiteData);
         };
-    },
-    mounted() {
-        this.fetchWebsites();
-    },
-    methods: {
-        async fetchWebsites() {
-            try {
-                const response = await fetch('/api/websites');
-                const data = await response.json();
-                this.websites = data;
-            } catch (error) {
-                this.message = 'Error fetching websites.';
-                this.messageType = 'error';
-            }
-        },
-        handleWebsiteCreated(newWebsite) {
-            this.websites.push(newWebsite);
-            this.message = 'Website created successfully.';
-            this.messageType = 'success';
-        },
+
+        return {
+            websites,
+            message,
+            messageType,
+            handleWebsiteCreated,
+        };
     },
 };
 </script>
 
 <template>
     <div class="create-website">
-        <h1>Create a New Website</h1>
+        <h1>Create a Website</h1>
         <Notification :message="message" :type="messageType" v-if="message" />
 
         <CreateWebsiteForm @websiteCreated="handleWebsiteCreated" />

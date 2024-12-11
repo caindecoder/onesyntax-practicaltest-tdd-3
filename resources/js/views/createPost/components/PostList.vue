@@ -9,12 +9,13 @@ export default {
 };
 </script>
 
+
 <template>
     <ul class="post-list">
         <li v-for="post in posts" :key="post.id">
             <h3>{{ post.title }}</h3>
             <p>{{ post.description }}</p>
-            <small>Website: {{ post.website_name }}</small>
+            <small>Website: {{ post.website_id }}</small>
         </li>
     </ul>
 </template>

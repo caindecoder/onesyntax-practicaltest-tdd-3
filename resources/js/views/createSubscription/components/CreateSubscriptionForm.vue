@@ -8,50 +8,39 @@ export default {
     },
     data() {
         return {
-            email: '',
-            websiteId: '',
+            subscription: {
+                email: '',
+                website_id: null,
+            },
         };
     },
+    emits: ['subscriptionCreated'],
     methods: {
-        async submitForm() {
-            try {
-                const response = await fetch('/api/subscriptions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: this.email,
-                        website_id: this.websiteId,
-                    }),
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    this.$emit('subscriptionCreated', data.subscription);
-                    this.email = '';
-                    this.websiteId = '';
-                } else {
-                    alert(`Error: ${data.error}`);
-                }
-            } catch (error) {
-                console.error('Error creating subscription:', error);
-            }
+        submitSubscription() {
+            this.$emit('subscriptionCreated', { ...this.subscription });
+            this.subscription = { email: '', website_id: null }; // Reset form
         },
     },
 };
 </script>
 
 <template>
-    <form @submit.prevent="submitForm" class="create-subscription-form">
-        <input v-model="email" type="email" placeholder="Email Address" required />
-        <select v-model="websiteId" required>
-            <option value="" disabled selected>Select a Website</option>
-            <option v-for="website in websites" :key="website.id" :value="website.id">
-                {{ website.name }}
-            </option>
-        </select>
-        <button type="submit">Subscribe</button>
+    <form @submit.prevent="submitSubscription" class="create-subscription-form">
+        <div>
+            <label for="email">Email:</label>
+            <input id="email" type="email" v-model="subscription.email" required />
+        </div>
+
+        <div>
+            <label for="website">Website:</label>
+            <select id="website" v-model="subscription.website_id" required>
+                <option v-for="website in websites" :key="website.id" :value="website.id">
+                    {{ website.name }}
+                </option>
+            </select>
+        </div>
+
+        <button type="submit">Create Subscription</button>
     </form>
 </template>
 
@@ -66,6 +55,8 @@ export default {
 .create-subscription-form select {
     padding: 10px;
     font-size: 1rem;
+    border-radius: 5px;
+    border: #1a202c 1px solid
 }
 .create-subscription-form button {
     padding: 10px;

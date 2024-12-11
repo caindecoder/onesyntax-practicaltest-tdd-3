@@ -1,4 +1,5 @@
 <script>
+import { usePost } from './composables/usePost.js';
 import CreatePostForm from './components/CreatePostForm.vue';
 import PostList from './components/PostList.vue';
 import Notification from './components/Notification.vue';
@@ -9,44 +10,30 @@ export default {
         PostList,
         Notification,
     },
-    data() {
-        return {
-            posts: [],
-            websites: [],
-            message: '',
-            messageType: '', // 'success' or 'error'
-        };
-    },
-    mounted() {
-        this.fetchData();
-    },
-    methods: {
-        async fetchData() {
-            try {
-                const [postsResponse, websitesResponse] = await Promise.all([
-                    fetch('/api/posts'),
-                    fetch('/api/websites'),
-                ]);
+    setup() {
+        const { posts, websites, message, messageType, fetchPosts, fetchWebsites, createPost } = usePost();
 
-                this.posts = await postsResponse.json();
-                this.websites = await websitesResponse.json();
-            } catch (error) {
-                this.message = 'Error fetching data.';
-                this.messageType = 'error';
-            }
-        },
-        handlePostCreated(newPost) {
-            this.posts.push(newPost);
-            this.message = 'Post created successfully.';
-            this.messageType = 'success';
-        },
+        fetchPosts();
+        fetchWebsites();
+
+        const handlePostCreated = (postData) => {
+            createPost(postData);
+        };
+
+        return {
+            posts,
+            websites,
+            message,
+            messageType,
+            handlePostCreated,
+        };
     },
 };
 </script>
 
 <template>
     <div class="create-post">
-        <h1>Create a New Post</h1>
+        <h1>Create a Post</h1>
         <Notification :message="message" :type="messageType" v-if="message" />
 
         <CreatePostForm :websites="websites" @postCreated="handlePostCreated" />
