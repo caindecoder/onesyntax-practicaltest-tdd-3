@@ -25,27 +25,14 @@ class SubscriptionController extends Controller
         return response()->json(['websites' => $websites]);
     }
 
-    public function store(Request $request, CreateSubscriptionInteractor $interactor)
+    public function store(Request $request, CreateSubscriptionInteractor $createSubscriptionInteractor)
     {
-        $createSubscriptionRequest = new CreateSubscriptionRequest();
-        $createSubscriptionRequest->email = $request->input('email');
-        $createSubscriptionRequest->website_id = $request->input('website_id');
+        $createSubscriptionInteractor->execute(CreateSubscriptionRequest::from([
+            'email' => $request->get('email'),
+            'website_id' => $request->get('website_id')
+        ]));
 
-        return $this->submitSubscription($interactor, $createSubscriptionRequest);
-    }
-
-    public function submitSubscription(CreateSubscriptionInteractor $interactor, CreateSubscriptionRequest $createSubscriptionRequest): JsonResponse
-    {
-        try {
-            $subscription = $interactor->execute($createSubscriptionRequest);
-            return response()->json([
-                'message' => 'Subscription created successfully.',
-                'subscription' => $subscription,
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'error' => $e->getMessage(),
-            ], 400);
-        }
+        return redirect()->route('subscription.index')
+            ->with('success', 'Subscription created successfully.');
     }
 }

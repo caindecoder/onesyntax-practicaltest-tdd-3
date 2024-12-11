@@ -14,7 +14,7 @@ class PostController extends Controller
     {
         $posts = Post::all();
         $websites = Website::all();
-        return response()->json($posts);
+        return response()->json([$posts, $websites]);
     }
 
     public function create()
@@ -25,15 +25,13 @@ class PostController extends Controller
 
     public function store(Request $request, CreatePostInteractor $createPostInteractor)
     {
-        $post = $createPostInteractor->execute(CreatePostRequest::from([
+        $createPostInteractor->execute(CreatePostRequest::from([
               'title' => $request->get('title'),
               'description' => $request->get('description'),
               'website_id' => $request->get('website_id')
           ]));
 
-        return response()->json([
-            'message' => 'Post created successfully.',
-            'post' => $post,
-        ]);
+        return redirect()->route('post.index')
+            ->with('success', 'Post created successfully.');
     }
 }
