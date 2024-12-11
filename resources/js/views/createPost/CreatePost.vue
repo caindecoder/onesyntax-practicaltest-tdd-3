@@ -1,157 +1,65 @@
 <script>
-import axios from 'axios';
+import CreatePostForm from './components/CreatePostForm.vue';
+import PostList from './components/PostList.vue';
+import Notification from './components/Notification.vue';
 
 export default {
+    components: {
+        CreatePostForm,
+        PostList,
+        Notification,
+    },
     data() {
         return {
-            post: {
-                title: '',
-                description: '',
-                website_id: null,
-            },
             posts: [],
             websites: [],
+            message: '',
+            messageType: '', // 'success' or 'error'
         };
     },
-    methods: {
-        async fetchWebsites() {
-            try {
-                const response = await axios.get('/api/websites'); // Update with your API endpoint
-                this.websites = response.data;
-            } catch (error) {
-                console.error('Error fetching websites:', error);
-            }
-        },
-        async fetchPosts() {
-            try {
-                const response = await axios.get('/api/posts'); // Update with your API endpoint
-                this.posts = response.data;
-            } catch (error) {
-                console.error('Error fetching posts:', error);
-            }
-        },
-        async submitPost() {
-            try {
-                const response = await axios.post('/api/posts', this.post); // Update with your API endpoint
-                this.posts.push(response.data); // Add the new post to the list
-                this.post.title = '';
-                this.post.description = '';
-                this.post.website_id = null; // Clear form fields
-            } catch (error) {
-                console.error('Error creating post:', error);
-            }
-        },
-        getWebsiteName(websiteId) {
-            const website = this.websites.find((site) => site.id === websiteId);
-            return website ? website.name : 'Unknown';
-        },
-    },
     mounted() {
-        this.fetchWebsites();
-        this.fetchPosts();
+        this.fetchData();
+    },
+    methods: {
+        async fetchData() {
+            try {
+                const [postsResponse, websitesResponse] = await Promise.all([
+                    fetch('/api/posts'),
+                    fetch('/api/websites'),
+                ]);
+
+                this.posts = await postsResponse.json();
+                this.websites = await websitesResponse.json();
+            } catch (error) {
+                this.message = 'Error fetching data.';
+                this.messageType = 'error';
+            }
+        },
+        handlePostCreated(newPost) {
+            this.posts.push(newPost);
+            this.message = 'Post created successfully.';
+            this.messageType = 'success';
+        },
     },
 };
 </script>
 
 <template>
     <div class="create-post">
-        <!-- Header -->
-        <h1 class="title">Create a New Post</h1>
+        <h1>Create a New Post</h1>
+        <Notification :message="message" :type="messageType" v-if="message" />
 
-        <!-- Form Section -->
-        <form @submit.prevent="submitPost" class="form">
-            <div class="form-group">
-                <label for="title">Post Title:</label>
-                <input v-model="post.title" id="title" type="text" required class="input" />
-            </div>
+        <CreatePostForm :websites="websites" @postCreated="handlePostCreated" />
 
-            <div class="form-group">
-                <label for="description">Description:</label>
-                <textarea v-model="post.description" id="description" required class="textarea"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="website_id">Website:</label>
-                <select v-model="post.website_id" id="website_id" required class="select">
-                    <option v-for="site in websites" :key="site.id" :value="site.id">{{ site.name }}</option>
-                </select>
-            </div>
-
-            <button type="submit" class="button">Create Post</button>
-        </form>
-
-        <!-- List Section -->
-        <div class="post-list">
-            <h2 class="subtitle">Existing Posts</h2>
-            <ul>
-                <li v-for="p in posts" :key="p.id" class="post-item">
-                    <strong>{{ p.title }}</strong>: {{ p.description }}
-                    <em>(Website: {{ getWebsiteName(p.website_id) }})</em>
-                </li>
-            </ul>
-        </div>
+        <h2>Existing Posts</h2>
+        <PostList :posts="posts" />
     </div>
 </template>
 
-
-
 <style scoped>
 .create-post {
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
-}
-
-.title {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
     text-align: center;
-}
-
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.input,
-.textarea,
-.select {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-.button {
-    padding: 0.5rem;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.button:hover {
-    background-color: #45a049;
-}
-
-.post-list {
-    margin-top: 2rem;
-}
-
-.subtitle {
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-.post-item {
-    margin: 0.5rem 0;
 }
 </style>

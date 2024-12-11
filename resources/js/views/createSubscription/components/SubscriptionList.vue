@@ -1,0 +1,32 @@
+<script>
+export default {
+    props: {
+        subscriptions: {
+            type: Array,
+            required: true,
+        },
+    },
+};
+</script>
+
+<template>
+    <ul class="subscription-list">
+        <li v-for="subscription in subscriptions" :key="subscription.id">
+            <h3>{{ subscription.email }}</h3>
+            <p>Subscribed to: {{ subscription.website_name }}</p>
+        </li>
+    </ul>
+</template>
+
+<style scoped>
+.subscription-list {
+    list-style: none;
+    padding: 0;
+}
+.subscription-list li {
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+</style>
