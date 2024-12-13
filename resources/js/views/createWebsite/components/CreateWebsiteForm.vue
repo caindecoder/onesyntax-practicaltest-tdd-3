@@ -1,33 +1,17 @@
 <script>
 export default {
+    props: [],
     data() {
         return {
-            name: '',
-            url: '',
+            formData: {
+                name: '',
+                url: '',
+            },
         };
     },
     methods: {
-        async submitForm() {
-            try {
-                const response = await fetch('/api/websites', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ name: this.name, url: this.url }),
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    this.$emit('websiteCreated', data.website);
-                    this.name = '';
-                    this.url = '';
-                } else {
-                    alert(`Error: ${data.error}`);
-                }
-            } catch (error) {
-                console.error('Error creating website:', error);
-            }
+        submitForm() {
+            this.$emit('websiteCreated', this.formData);
         },
     },
 };
@@ -35,8 +19,14 @@ export default {
 
 <template>
     <form @submit.prevent="submitForm" class="create-website-form">
-        <input v-model="name" type="text" placeholder="Website Name" required />
-        <input v-model="url" type="url" placeholder="Website URL" required />
+        <div>
+            <label for="name">Name:</label>
+            <input v-model="formData.name" id="name" type="text" required />
+        </div>
+        <div>
+            <label for="url">URL:</label>
+            <input v-model="formData.url" id="url" type="text" required />
+        </div>
         <button type="submit">Create Website</button>
     </form>
 </template>

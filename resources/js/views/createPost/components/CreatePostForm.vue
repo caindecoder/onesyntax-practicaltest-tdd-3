@@ -1,52 +1,43 @@
-
 <script>
 export default {
     props: {
-        websites: {
-            type: Array,
-            required: true,
-        },
+        websites: Array,
     },
     data() {
         return {
-            post: {
+            formData: {
                 title: '',
                 description: '',
                 website_id: null,
             },
         };
     },
-    emits: ['postCreated'],
     methods: {
-        submitPost() {
-            this.$emit('postCreated', { ...this.post });
-            this.post = { title: '', description: '', website_id: null }; // Reset form
+        submitForm() {
+            this.$emit('postCreated', this.formData);
         },
     },
 };
 </script>
 
 <template>
-    <form @submit.prevent="submitPost" class="create-post-form">
-        <div class="create-post-form">
-            <label for="title">Title:</label>
-            <input id="title" v-model="post.title" required/>
+    <form @submit.prevent="submitForm" class="create-post-form">
+        <div>
+            <label for="title">Title</label>
+            <input type="text" v-model="formData.title" id="title" />
         </div>
-
-        <div class="create-post-form">
-            <label for="description">Description:</label>
-            <textarea id="description" v-model="post.description" required></textarea>
+        <div>
+            <label for="description">Description</label>
+            <textarea v-model="formData.description" id="description"></textarea>
         </div>
-
-        <div class="create-post-form">
-            <label for="website">Website:</label>
-            <select id="website" v-model="post.website_id" required>
+        <div>
+            <label for="website_id">Website</label>
+            <select v-model="formData.website_id" id="website_id">
                 <option v-for="website in websites" :key="website.id" :value="website.id">
                     {{ website.name }}
                 </option>
             </select>
         </div>
-
         <button type="submit">Create Post</button>
     </form>
 </template>

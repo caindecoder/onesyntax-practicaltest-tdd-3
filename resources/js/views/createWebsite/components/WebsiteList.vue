@@ -1,22 +1,16 @@
 <script>
 export default {
-    props: {
-        websites: {
-            type: Array,
-            required: true,
-        },
-    },
+    props: ['websites'],
 };
 </script>
 
 <template>
     <ul class="website-list">
         <li v-for="website in websites" :key="website.id">
-            <strong>{{ website.name }}</strong> - {{ website.url }}
+            {{ website.name }} - {{ website.url }}
         </li>
     </ul>
 </template>
-
 
 <style scoped>
 .website-list {

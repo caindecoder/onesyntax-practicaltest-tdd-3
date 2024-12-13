@@ -1,5 +1,7 @@
 <script>
-import { usePost } from './composables/usePost.js';
+import { PostRequest } from './composables/postRequest.js';
+import { PostInteractor } from './composables/postInteractor.js';
+import { websiteFetch } from './composables/websiteFetch.js';
 import CreatePostForm from './components/CreatePostForm.vue';
 import PostList from './components/PostList.vue';
 import Notification from './components/Notification.vue';
@@ -10,26 +12,42 @@ export default {
         PostList,
         Notification,
     },
-    setup() {
-        const { posts, websites, message, messageType, fetchPosts, fetchWebsites, createPost } = usePost();
-
-        fetchPosts();
-        fetchWebsites();
-
-        const handlePostCreated = (postData) => {
-            createPost(postData);
-        };
-
+    data() {
         return {
-            posts,
-            websites,
-            message,
-            messageType,
-            handlePostCreated,
+            posts: [],
+            websites: [],
+            message: '',
+            messageType: '',
         };
+    },
+    async created() {
+        this.interactor = new PostInteractor();
+        try {
+            this.websites = await websiteFetch();
+            this.posts = await this.interactor.fetchPosts();
+        } catch (error) {
+            this.message = error.message;
+            this.messageType = 'error';
+        }
+    },
+    methods: {
+        async handlePostCreated(postData) {
+            try {
+                const postRequest = new PostRequest(postData);
+                const newPost = await this.interactor.createPost(postRequest);
+                this.posts.push(newPost);
+                this.message = 'Post created successfully.';
+                this.messageType = 'success';
+            } catch (error) {
+                this.message = error.message;
+                this.messageType = 'error';
+            }
+        },
     },
 };
 </script>
+
+
 
 <template>
     <div class="create-post">

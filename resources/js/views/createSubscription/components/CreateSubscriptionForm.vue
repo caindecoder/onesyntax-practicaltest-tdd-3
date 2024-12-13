@@ -1,45 +1,36 @@
 <script>
 export default {
-    props: {
-        websites: {
-            type: Array,
-            required: true,
-        },
-    },
+    props: ['websites'],
     data() {
         return {
-            subscription: {
+            formData: {
+                website_id: '',
                 email: '',
-                website_id: null,
             },
         };
     },
-    emits: ['subscriptionCreated'],
     methods: {
-        submitSubscription() {
-            this.$emit('subscriptionCreated', { ...this.subscription });
-            this.subscription = { email: '', website_id: null }; // Reset form
+        submitForm() {
+            this.$emit('subscriptionCreated', this.formData);
         },
     },
 };
 </script>
 
 <template>
-    <form @submit.prevent="submitSubscription" class="create-subscription-form">
+    <form @submit.prevent="submitForm" class="create-subscription-form">
         <div>
-            <label for="email">Email:</label>
-            <input id="email" type="email" v-model="subscription.email" required />
-        </div>
-
-        <div>
-            <label for="website">Website:</label>
-            <select id="website" v-model="subscription.website_id" required>
+            <label for="website_id">Website:</label>
+            <select v-model="formData.website_id" id="website_id" required>
                 <option v-for="website in websites" :key="website.id" :value="website.id">
                     {{ website.name }}
                 </option>
             </select>
         </div>
-
+        <div>
+            <label for="email">Email:</label>
+            <input v-model="formData.email" id="email" type="email" required />
+        </div>
         <button type="submit">Create Subscription</button>
     </form>
 </template>

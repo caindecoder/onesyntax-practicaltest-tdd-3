@@ -1,5 +1,6 @@
 <script>
-import { useWebsite } from './composables/useWebsite.js';
+import { WebsiteRequest } from './composables/websiteRequest.js';
+import { WebsiteInteractor } from './composables/websiteInteractor.js';
 import CreateWebsiteForm from './components/CreateWebsiteForm.vue';
 import WebsiteList from './components/WebsiteList.vue';
 import Notification from './components/Notification.vue';
@@ -10,21 +11,35 @@ export default {
         WebsiteList,
         Notification,
     },
-    setup() {
-        const { websites, message, messageType, fetchWebsites, createWebsite } = useWebsite();
-
-        fetchWebsites();
-
-        const handleWebsiteCreated = (websiteData) => {
-            createWebsite(websiteData);
-        };
-
+    data() {
         return {
-            websites,
-            message,
-            messageType,
-            handleWebsiteCreated,
+            websites: [],
+            message: '',
+            messageType: '',
         };
+    },
+    async created() {
+        this.interactor = new WebsiteInteractor();
+        try {
+            this.websites = await this.interactor.fetchWebsites();
+        } catch (error) {
+            this.message = error.message;
+            this.messageType = 'error';
+        }
+    },
+    methods: {
+        async handleWebsiteCreated(websiteData) {
+            try {
+                const websiteRequest = new WebsiteRequest(websiteData);
+                const newWebsite = await this.interactor.createWebsite(websiteRequest);
+                this.websites.push(newWebsite);
+                this.message = 'Website created successfully.';
+                this.messageType = 'success';
+            } catch (error) {
+                this.message = error.message;
+                this.messageType = 'error';
+            }
+        },
     },
 };
 </script>
@@ -32,11 +47,8 @@ export default {
 <template>
     <div class="create-website">
         <h1>Create a Website</h1>
-        <Notification :message="message" :type="messageType" v-if="message" />
-
+        <Notification :message="message" :type="messageType" />
         <CreateWebsiteForm @websiteCreated="handleWebsiteCreated" />
-
-        <h2>Existing Websites</h2>
         <WebsiteList :websites="websites" />
     </div>
 </template>
