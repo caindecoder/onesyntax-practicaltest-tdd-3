@@ -12,9 +12,7 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::all();
-        $websites = Website::all();
-        return response()->json([$posts, $websites]);
+        return response()->json(Post::with('website')->get());
     }
 
     public function create()

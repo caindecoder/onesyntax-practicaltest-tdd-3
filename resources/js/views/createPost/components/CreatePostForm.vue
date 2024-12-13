@@ -8,7 +8,7 @@ export default {
             formData: {
                 title: '',
                 description: '',
-                website_id: null,
+                website_id: '',
             },
         };
     },

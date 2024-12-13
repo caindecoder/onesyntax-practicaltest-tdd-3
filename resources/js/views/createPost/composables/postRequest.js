@@ -1,8 +1,8 @@
 export class PostRequest {
-    constructor({ title, description, websiteId }) {
+    constructor({ title, description, website_id }) {
         this.title = title;
         this.description = description;
-        this.websiteId = websiteId;
+        this.websiteId = website_id;
     }
 
     validate() {
