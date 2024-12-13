@@ -9,9 +9,9 @@
     <nav>
         <div>
             <router-link class="link" to="/">Home Page</router-link>
-            <router-link class="link" to="/website">Create Website</router-link>
-            <router-link class="link" to="/post">Create Post</router-link>
-            <router-link class="link" to="/subscription">Create Subscription</router-link>
+            <router-link class="link" to="/website">Websites</router-link>
+            <router-link class="link" to="/post">Posts</router-link>
+            <router-link class="link" to="/subscription">Subscriptions</router-link>
         </div>
     </nav>
     <main>

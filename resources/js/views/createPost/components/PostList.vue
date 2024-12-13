@@ -9,7 +9,6 @@ export default {
 
 <template>
     <div class="post-list">
-        <h3>Posts</h3>
         <ul>
             <li v-for="post in posts" :key="post.id">
                 <strong>{{ post.title }}</strong>: {{ post.description }}
