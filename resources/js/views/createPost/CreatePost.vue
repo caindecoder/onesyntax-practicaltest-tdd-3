@@ -1,10 +1,9 @@
 <script>
-import { PostRequest } from './composables/postRequest.js';
-import { PostInteractor } from './composables/postInteractor.js';
-import { websiteFetch } from './composables/websiteFetch.js';
 import CreatePostForm from './components/CreatePostForm.vue';
 import PostList from './components/PostList.vue';
 import Notification from './components/Notification.vue';
+import { PostInteractor } from './composables/postInteractor.js';
+import { websiteFetch } from './composables/websiteFetch.js';
 
 export default {
     components: {
@@ -14,27 +13,37 @@ export default {
     },
     data() {
         return {
-            posts: [],
             websites: [],
+            posts: [],
             message: '',
             messageType: '',
         };
     },
     async created() {
-        this.interactor = new PostInteractor();
-        try {
-            this.websites = await websiteFetch();
-            this.posts = await this.interactor.fetchPosts();
-        } catch (error) {
-            this.message = error.message;
-            this.messageType = 'error';
-        }
+        this.postInteractor = new PostInteractor();
+        await this.loadWebsites();
+        await this.loadPosts();
     },
     methods: {
+        async loadWebsites() {
+            try {
+                this.websites = await websiteFetch();
+            } catch (error) {
+                this.message = 'Failed to load websites.';
+                this.messageType = 'error';
+            }
+        },
+        async loadPosts() {
+            try {
+                this.posts = await this.postInteractor.getPosts();
+            } catch (error) {
+                this.message = 'Failed to load posts.';
+                this.messageType = 'error';
+            }
+        },
         async handlePostCreated(postData) {
             try {
-                const postRequest = new PostRequest(postData);
-                const newPost = await this.interactor.createPost(postRequest);
+                const newPost = await this.postInteractor.createPost(postData);
                 this.posts.push(newPost);
                 this.message = 'Post created successfully.';
                 this.messageType = 'success';
@@ -51,12 +60,8 @@ export default {
 
 <template>
     <div class="create-post">
-        <h1>Create a Post</h1>
-        <Notification :message="message" :type="messageType" v-if="message" />
-
+        <Notification :message="message" :type="messageType" />
         <CreatePostForm :websites="websites" @postCreated="handlePostCreated" />
-
-        <h2>Existing Posts</h2>
         <PostList :posts="posts" />
     </div>
 </template>

@@ -1,11 +1,16 @@
 <script>
 export default {
-    props: ['websites'],
+    props: {
+        websites: {
+            type: Array,
+            required: true,
+        },
+    },
     data() {
         return {
             formData: {
-                website_id: '',
                 email: '',
+                website_id: '',
             },
         };
     },
@@ -20,16 +25,17 @@ export default {
 <template>
     <form @submit.prevent="submitForm" class="create-subscription-form">
         <div>
-            <label for="website_id">Website:</label>
-            <select v-model="formData.website_id" id="website_id" required>
+            <label for="email">Email:</label>
+            <input v-model="formData.email" id="email" type="email" required />
+        </div>
+        <div>
+            <label for="website">Select Website:</label>
+            <select v-model="formData.website_id" id="website" required>
+                <option disabled value="">Select...</option>
                 <option v-for="website in websites" :key="website.id" :value="website.id">
                     {{ website.name }}
                 </option>
             </select>
-        </div>
-        <div>
-            <label for="email">Email:</label>
-            <input v-model="formData.email" id="email" type="email" required />
         </div>
         <button type="submit">Create Subscription</button>
     </form>

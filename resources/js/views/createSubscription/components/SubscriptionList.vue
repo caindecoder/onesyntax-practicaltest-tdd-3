@@ -1,13 +1,18 @@
 <script>
 export default {
-    props: ['subscriptions'],
+    props: {
+        subscriptions: {
+            type: Array,
+            required: true,
+        },
+    },
 };
 </script>
 
 <template>
     <ul class="subscription-list">
         <li v-for="subscription in subscriptions" :key="subscription.id">
-            {{ subscription.email }} - {{ subscription.website.name }}
+            {{ subscription.email }} subscribed to Website ID: {{ subscription.website_id }}
         </li>
     </ul>
 </template>

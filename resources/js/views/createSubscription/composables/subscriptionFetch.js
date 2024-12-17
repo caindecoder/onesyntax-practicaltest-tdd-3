@@ -1,6 +1,6 @@
-import apiClient from './apiClient';
+import { SubscriptionGateway } from './SubscriptionGateway';
 
 export async function subscriptionFetch() {
-    const response = await apiClient.get('/subscriptions');
-    return response.data;
+    const gateway = new SubscriptionGateway();
+    return await gateway.fetchAll();
 }

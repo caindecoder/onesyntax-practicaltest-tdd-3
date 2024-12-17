@@ -1,7 +1,10 @@
 <script>
 export default {
     props: {
-        websites: Array,
+        websites: {
+            type: Array,
+            required: true,
+        },
     },
     data() {
         return {
@@ -23,16 +26,17 @@ export default {
 <template>
     <form @submit.prevent="submitForm" class="create-post-form">
         <div>
-            <label for="title">Title</label>
-            <input type="text" v-model="formData.title" id="title" />
+            <label for="title">Title:</label>
+            <input v-model="formData.title" id="title" type="text" required />
         </div>
         <div>
-            <label for="description">Description</label>
-            <textarea v-model="formData.description" id="description"></textarea>
+            <label for="content">Content:</label>
+            <textarea v-model="formData.description" id="content" required></textarea>
         </div>
         <div>
-            <label for="website_id">Website</label>
-            <select v-model="formData.website_id" id="website_id">
+            <label for="website">Select Website:</label>
+            <select v-model="formData.website_id" id="website" required>
+                <option disabled value="">Select...</option>
                 <option v-for="website in websites" :key="website.id" :value="website.id">
                     {{ website.name }}
                 </option>

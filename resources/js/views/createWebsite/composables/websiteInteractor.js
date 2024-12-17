@@ -1,13 +1,15 @@
-import { websiteCreate } from './websiteCreate';
-import { websiteFetch } from './websiteFetch';
+import { websiteCreate } from './websiteCreate.js';
+import {websiteFetch} from './websiteFetch.js';
+import { Website } from './Website.js';
 
 export class WebsiteInteractor {
-    async createWebsite(websiteRequest) {
-        websiteRequest.validate();
-        return await websiteCreate(websiteRequest);
+    async createWebsite(data) {
+        const response = await websiteCreate(data);
+        return new Website(response);
     }
 
-    async fetchWebsites() {
-        return await websiteFetch();
+    async getWebsites() {
+        const response = await websiteFetch();
+        return response.map((item) => new Website(item));
     }
 }

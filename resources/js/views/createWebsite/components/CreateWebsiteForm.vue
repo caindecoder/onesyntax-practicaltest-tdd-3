@@ -1,6 +1,5 @@
 <script>
 export default {
-    props: [],
     data() {
         return {
             formData: {
@@ -20,12 +19,12 @@ export default {
 <template>
     <form @submit.prevent="submitForm" class="create-website-form">
         <div>
-            <label for="name">Name:</label>
+            <label for="name">Website Name:</label>
             <input v-model="formData.name" id="name" type="text" required />
         </div>
         <div>
-            <label for="url">URL:</label>
-            <input v-model="formData.url" id="url" type="text" required />
+            <label for="url">Website URL:</label>
+            <input v-model="formData.url" id="url" type="url" required />
         </div>
         <button type="submit">Create Website</button>
     </form>

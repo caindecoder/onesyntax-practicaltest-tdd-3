@@ -1,6 +1,6 @@
-import apiClient from './apiClient';
+import { WebsiteGateway } from './WebsiteGateway';
 
 export async function websiteFetch() {
-    const response = await apiClient.get('/websites');
-    return response.data;
+    const gateway = new WebsiteGateway();
+    return await gateway.fetchAll();
 }

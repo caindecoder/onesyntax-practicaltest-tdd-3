@@ -1,13 +1,15 @@
 import { subscriptionCreate } from './subscriptionCreate';
 import { subscriptionFetch } from './subscriptionFetch';
+import { Subscription } from './Subscription';
 
 export class SubscriptionInteractor {
-    async createSubscription(subscriptionRequest) {
-        subscriptionRequest.validate();
-        return await subscriptionCreate(subscriptionRequest);
+    async createSubscription(data) {
+        const response = await subscriptionCreate(data);
+        return new Subscription(response);
     }
 
-    async fetchSubscriptions() {
-        return await subscriptionFetch();
+    async getSubscriptions() {
+        const response = await subscriptionFetch();
+        return response.map((item) => new Subscription(item));
     }
 }

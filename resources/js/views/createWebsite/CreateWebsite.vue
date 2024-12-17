@@ -1,9 +1,8 @@
 <script>
-import { WebsiteRequest } from './composables/websiteRequest.js';
-import { WebsiteInteractor } from './composables/websiteInteractor.js';
 import CreateWebsiteForm from './components/CreateWebsiteForm.vue';
 import WebsiteList from './components/WebsiteList.vue';
 import Notification from './components/Notification.vue';
+import { WebsiteInteractor } from './composables/websiteInteractor.js';
 
 export default {
     components: {
@@ -20,18 +19,20 @@ export default {
     },
     async created() {
         this.interactor = new WebsiteInteractor();
-        try {
-            this.websites = await this.interactor.fetchWebsites();
-        } catch (error) {
-            this.message = error.message;
-            this.messageType = 'error';
-        }
+        await this.loadWebsites();
     },
     methods: {
+        async loadWebsites() {
+            try {
+                this.websites = await this.interactor.getWebsites();
+            } catch (error) {
+                this.message = error.message;
+                this.messageType = 'error';
+            }
+        },
         async handleWebsiteCreated(websiteData) {
             try {
-                const websiteRequest = new WebsiteRequest(websiteData);
-                const newWebsite = await this.interactor.createWebsite(websiteRequest);
+                const newWebsite = await this.interactor.createWebsite(websiteData);
                 this.websites.push(newWebsite);
                 this.message = 'Website created successfully.';
                 this.messageType = 'success';
@@ -46,7 +47,6 @@ export default {
 
 <template>
     <div class="create-website">
-        <h1>Create a Website</h1>
         <Notification :message="message" :type="messageType" />
         <CreateWebsiteForm @websiteCreated="handleWebsiteCreated" />
         <WebsiteList :websites="websites" />

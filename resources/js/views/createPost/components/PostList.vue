@@ -1,20 +1,20 @@
-
 <script>
 export default {
     props: {
-        posts: Array,
+        posts: {
+            type: Array,
+            required: true,
+        },
     },
 };
 </script>
 
 <template>
-    <div class="post-list">
-        <ul>
-            <li v-for="post in posts" :key="post.id">
-                <strong>{{ post.title }}</strong>: {{ post.description }}
-            </li>
-        </ul>
-    </div>
+    <ul class="post-list">
+        <li v-for="post in posts" :key="post.id">
+            <strong>{{ post.title }}</strong> - {{ post.description }} (Website ID: {{ post.website_id }})
+        </li>
+    </ul>
 </template>
 
 <style scoped>

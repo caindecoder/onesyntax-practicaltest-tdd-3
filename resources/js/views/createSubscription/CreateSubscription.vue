@@ -1,10 +1,9 @@
 <script>
-import { websiteFetch } from './composables/websiteFetch.js';
-import { SubscriptionRequest } from './composables/subscriptionRequest.js';
-import { SubscriptionInteractor } from './composables/subscriptionInteractor.js';
 import CreateSubscriptionForm from './components/CreateSubscriptionForm.vue';
 import SubscriptionList from './components/SubscriptionList.vue';
 import Notification from './components/Notification.vue';
+import { SubscriptionInteractor } from './composables/subscriptionInteractor.js';
+import { websiteFetch } from './composables/websiteFetch.js';
 
 export default {
     components: {
@@ -14,27 +13,37 @@ export default {
     },
     data() {
         return {
-            subscriptions: [],
             websites: [],
+            subscriptions: [],
             message: '',
             messageType: '',
         };
     },
     async created() {
-        this.interactor = new SubscriptionInteractor();
-        try {
-            this.websites = await websiteFetch();
-            this.subscriptions = await this.interactor.fetchSubscriptions();
-        } catch (error) {
-            this.message = error.message;
-            this.messageType = 'error';
-        }
+        this.subscriptionInteractor = new SubscriptionInteractor();
+        await this.loadWebsites();
+        await this.loadSubscriptions();
     },
     methods: {
+        async loadWebsites() {
+            try {
+                this.websites = await websiteFetch();
+            } catch (error) {
+                this.message = 'Failed to load websites.';
+                this.messageType = 'error';
+            }
+        },
+        async loadSubscriptions() {
+            try {
+                this.subscriptions = await this.subscriptionInteractor.getSubscriptions();
+            } catch (error) {
+                this.message = 'Failed to load subscriptions.';
+                this.messageType = 'error';
+            }
+        },
         async handleSubscriptionCreated(subscriptionData) {
             try {
-                const subscriptionRequest = new SubscriptionRequest(subscriptionData);
-                const newSubscription = await this.interactor.createSubscription(subscriptionRequest);
+                const newSubscription = await this.subscriptionInteractor.createSubscription(subscriptionData);
                 this.subscriptions.push(newSubscription);
                 this.message = 'Subscription created successfully.';
                 this.messageType = 'success';
@@ -49,7 +58,6 @@ export default {
 
 <template>
     <div class="create-subscription">
-        <h1>Create a Subscription</h1>
         <Notification :message="message" :type="messageType" />
         <CreateSubscriptionForm :websites="websites" @subscriptionCreated="handleSubscriptionCreated" />
         <SubscriptionList :subscriptions="subscriptions" />

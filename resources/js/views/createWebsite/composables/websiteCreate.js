@@ -1,9 +1,13 @@
-import apiClient from './apiClient';
+import { WebsiteGateway } from './WebsiteGateway.js';
+import { WebsiteRequest } from './websiteRequest.js';
 
-export async function websiteCreate(websiteRequest) {
-    const response = await apiClient.post('/websites', {
-        name: websiteRequest.name,
-        url: websiteRequest.url,
+export async function websiteCreate(data) {
+    const request = new WebsiteRequest(data);
+    request.validate();
+
+    const gateway = new WebsiteGateway();
+    const response = await gateway.create({
+        name: request.name,
+        url: request.url,
     });
-    return response.data;
 }

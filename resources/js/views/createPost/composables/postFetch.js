@@ -1,6 +1,6 @@
-import apiClient from './apiClient';
+import { PostGateway } from './PostGateway';
 
 export async function postFetch() {
-    const response = await apiClient.get('/posts');
-    return response.data;
+    const gateway = new PostGateway();
+    return await gateway.fetchAll();
 }
