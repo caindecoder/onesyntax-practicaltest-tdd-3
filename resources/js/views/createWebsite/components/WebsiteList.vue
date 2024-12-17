@@ -1,6 +1,11 @@
 <script>
 export default {
-    props: ['websites'],
+    props: {
+        websites: {
+            type: Array,
+            required: true,
+        },
+    },
 };
 </script>
 

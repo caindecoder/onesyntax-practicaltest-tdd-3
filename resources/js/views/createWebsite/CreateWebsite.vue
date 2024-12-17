@@ -1,8 +1,8 @@
 <script>
+import { WebsiteInteractor } from './composables/websiteInteractor.js';
 import CreateWebsiteForm from './components/CreateWebsiteForm.vue';
 import WebsiteList from './components/WebsiteList.vue';
-import Notification from './components/Notification.vue';
-import { WebsiteInteractor } from './composables/websiteInteractor.js';
+import Notification from '../shared/Notification.vue';
 
 export default {
     components: {
@@ -24,7 +24,7 @@ export default {
     methods: {
         async loadWebsites() {
             try {
-                this.websites = await this.interactor.getWebsites();
+                this.websites = await this.interactor.fetchWebsites();
             } catch (error) {
                 this.message = error.message;
                 this.messageType = 'error';
@@ -34,7 +34,7 @@ export default {
             try {
                 const newWebsite = await this.interactor.createWebsite(websiteData);
                 this.websites.push(newWebsite);
-                this.message = 'Website created successfully.';
+                this.message = 'Website created successfully!';
                 this.messageType = 'success';
             } catch (error) {
                 this.message = error.message;

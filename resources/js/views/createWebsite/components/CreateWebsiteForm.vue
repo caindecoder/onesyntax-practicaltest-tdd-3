@@ -10,7 +10,7 @@ export default {
     },
     methods: {
         submitForm() {
-            this.$emit('websiteCreated', this.formData);
+            this.$emit('websiteCreated', { ...this.formData });
         },
     },
 };

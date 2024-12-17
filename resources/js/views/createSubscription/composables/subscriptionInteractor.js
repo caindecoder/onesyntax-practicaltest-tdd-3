@@ -1,15 +1,18 @@
-import { subscriptionCreate } from './subscriptionCreate';
-import { subscriptionFetch } from './subscriptionFetch';
-import { Subscription } from './Subscription';
+import { SubscriptionGateway } from './SubscriptionGateway';
+import { SubscriptionRequest } from './SubscriptionRequest';
 
 export class SubscriptionInteractor {
-    async createSubscription(data) {
-        const response = await subscriptionCreate(data);
-        return new Subscription(response);
+    constructor() {
+        this.gateway = new SubscriptionGateway();
     }
 
-    async getSubscriptions() {
-        const response = await subscriptionFetch();
-        return response.map((item) => new Subscription(item));
+    async fetchSubscriptions() {
+        return await this.gateway.fetchSubscriptions();
+    }
+
+    async createSubscription(subscriptionData) {
+        const request = new SubscriptionRequest(subscriptionData);
+        request.validate();
+        return await this.gateway.createSubscription(request);
     }
 }

@@ -3,18 +3,23 @@ export default {
     props: {
         message: {
             type: String,
-            required: true,
+            default: '',
         },
         type: {
             type: String,
-            default: 'success', // Can be 'success' or 'error'
+            default: 'info',
+        },
+    },
+    computed: {
+        typeClass() {
+            return this.type === 'success' ? 'notification-success' : 'notification-error';
         },
     },
 };
 </script>
 
 <template>
-    <div :class="['notification', type]">
+    <div v-if="message" :class="['notification', typeClass]">
         {{ message }}
     </div>
 </template>

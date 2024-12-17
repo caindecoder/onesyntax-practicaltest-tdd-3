@@ -1,13 +1,17 @@
-import apiClient from './apiClient';
-
 export class PostGateway {
-    async create(data) {
-        const response = await apiClient.post('/posts', data);
-        return response.data;
+    async fetchPosts() {
+        const response = await fetch('/api/posts');
+        if (!response.ok) throw new Error('Failed to fetch posts');
+        return response.json();
     }
 
-    async fetchAll() {
-        const response = await apiClient.get('/posts');
-        return response.data;
+    async createPost(postRequest) {
+        const response = await fetch('/api/posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(postRequest),
+        });
+        if (!response.ok) throw new Error('Failed to create post');
+        return response.json();
     }
 }

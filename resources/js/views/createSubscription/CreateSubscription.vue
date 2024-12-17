@@ -1,9 +1,9 @@
 <script>
+import { SubscriptionInteractor } from './composables/subscriptionInteractor.js';
+import { WebsiteGateway } from './composables/WebsiteGateway.js';
 import CreateSubscriptionForm from './components/CreateSubscriptionForm.vue';
 import SubscriptionList from './components/SubscriptionList.vue';
-import Notification from './components/Notification.vue';
-import { SubscriptionInteractor } from './composables/subscriptionInteractor.js';
-import { websiteFetch } from './composables/websiteFetch.js';
+import Notification from '../shared/Notification.vue';
 
 export default {
     components: {
@@ -21,23 +21,25 @@ export default {
     },
     async created() {
         this.subscriptionInteractor = new SubscriptionInteractor();
+        this.websiteGateway = new WebsiteGateway();
+
         await this.loadWebsites();
         await this.loadSubscriptions();
     },
     methods: {
         async loadWebsites() {
             try {
-                this.websites = await websiteFetch();
+                this.websites = await this.websiteGateway.fetchWebsites();
             } catch (error) {
-                this.message = 'Failed to load websites.';
+                this.message = error.message;
                 this.messageType = 'error';
             }
         },
         async loadSubscriptions() {
             try {
-                this.subscriptions = await this.subscriptionInteractor.getSubscriptions();
+                this.subscriptions = await this.subscriptionInteractor.fetchSubscriptions();
             } catch (error) {
-                this.message = 'Failed to load subscriptions.';
+                this.message = error.message;
                 this.messageType = 'error';
             }
         },
@@ -45,7 +47,7 @@ export default {
             try {
                 const newSubscription = await this.subscriptionInteractor.createSubscription(subscriptionData);
                 this.subscriptions.push(newSubscription);
-                this.message = 'Subscription created successfully.';
+                this.message = 'Subscription created successfully!';
                 this.messageType = 'success';
             } catch (error) {
                 this.message = error.message;

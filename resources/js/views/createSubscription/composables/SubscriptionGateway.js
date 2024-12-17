@@ -1,13 +1,17 @@
-import apiClient from './apiClient';
-
 export class SubscriptionGateway {
-    async create(data) {
-        const response = await apiClient.post('/subscriptions', data);
-        return response.data;
+    async fetchSubscriptions() {
+        const response = await fetch('/api/subscriptions');
+        if (!response.ok) throw new Error('Failed to fetch subscriptions');
+        return response.json();
     }
 
-    async fetchAll() {
-        const response = await apiClient.get('/subscriptions');
-        return response.data;
+    async createSubscription(subscriptionRequest) {
+        const response = await fetch('/api/subscriptions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(subscriptionRequest),
+        });
+        if (!response.ok) throw new Error('Failed to create subscription');
+        return response.json();
     }
 }

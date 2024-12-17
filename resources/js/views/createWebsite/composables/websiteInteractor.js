@@ -1,15 +1,18 @@
-import { websiteCreate } from './websiteCreate.js';
-import {websiteFetch} from './websiteFetch.js';
-import { Website } from './Website.js';
+import { WebsiteGateway } from './WebsiteGateway';
+import { WebsiteRequest } from './websiteRequest';
 
 export class WebsiteInteractor {
-    async createWebsite(data) {
-        const response = await websiteCreate(data);
-        return new Website(response);
+    constructor() {
+        this.gateway = new WebsiteGateway();
     }
 
-    async getWebsites() {
-        const response = await websiteFetch();
-        return response.map((item) => new Website(item));
+    async fetchWebsites() {
+        return await this.gateway.fetchWebsites();
+    }
+
+    async createWebsite(websiteData) {
+        const request = new WebsiteRequest(websiteData);
+        request.validate();
+        return await this.gateway.createWebsite(request);
     }
 }

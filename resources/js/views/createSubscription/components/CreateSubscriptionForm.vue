@@ -16,7 +16,7 @@ export default {
     },
     methods: {
         submitForm() {
-            this.$emit('subscriptionCreated', this.formData);
+            this.$emit('subscriptionCreated', { ...this.formData });
         },
     },
 };

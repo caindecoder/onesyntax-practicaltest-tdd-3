@@ -1,15 +1,18 @@
-import { postCreate } from './postCreate';
-import { postFetch } from './postFetch';
-import { Post } from './Post';
+import { PostGateway } from './PostGateway';
+import { PostRequest } from './PostRequest';
 
 export class PostInteractor {
-    async createPost(data) {
-        const response = await postCreate(data);
-        return new Post(response);
+    constructor() {
+        this.gateway = new PostGateway();
     }
 
-    async getPosts() {
-        const response = await postFetch();
-        return response.map((item) => new Post(item));
+    async fetchPosts() {
+        return await this.gateway.fetchPosts();
+    }
+
+    async createPost(postData) {
+        const request = new PostRequest(postData);
+        request.validate();
+        return await this.gateway.createPost(request);
     }
 }

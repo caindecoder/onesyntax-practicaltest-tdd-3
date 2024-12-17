@@ -1,9 +1,9 @@
 <script>
+import { PostInteractor } from './composables/postInteractor.js';
+import { WebsiteGateway } from './composables/WebsiteGateway.js';
 import CreatePostForm from './components/CreatePostForm.vue';
 import PostList from './components/PostList.vue';
-import Notification from './components/Notification.vue';
-import { PostInteractor } from './composables/postInteractor.js';
-import { websiteFetch } from './composables/websiteFetch.js';
+import Notification from '../shared/Notification.vue';
 
 export default {
     components: {
@@ -21,23 +21,25 @@ export default {
     },
     async created() {
         this.postInteractor = new PostInteractor();
+        this.websiteGateway = new WebsiteGateway();
+
         await this.loadWebsites();
         await this.loadPosts();
     },
     methods: {
         async loadWebsites() {
             try {
-                this.websites = await websiteFetch();
+                this.websites = await this.websiteGateway.fetchWebsites();
             } catch (error) {
-                this.message = 'Failed to load websites.';
+                this.message = error.message;
                 this.messageType = 'error';
             }
         },
         async loadPosts() {
             try {
-                this.posts = await this.postInteractor.getPosts();
+                this.posts = await this.postInteractor.fetchPosts();
             } catch (error) {
-                this.message = 'Failed to load posts.';
+                this.message = error.message;
                 this.messageType = 'error';
             }
         },
@@ -45,7 +47,7 @@ export default {
             try {
                 const newPost = await this.postInteractor.createPost(postData);
                 this.posts.push(newPost);
-                this.message = 'Post created successfully.';
+                this.message = 'Post created successfully!';
                 this.messageType = 'success';
             } catch (error) {
                 this.message = error.message;
@@ -55,8 +57,6 @@ export default {
     },
 };
 </script>
-
-
 
 <template>
     <div class="create-post">

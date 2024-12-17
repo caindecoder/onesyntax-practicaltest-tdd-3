@@ -10,14 +10,14 @@ export default {
         return {
             formData: {
                 title: '',
-                description: '',
+                content: '',
                 website_id: '',
             },
         };
     },
     methods: {
         submitForm() {
-            this.$emit('postCreated', this.formData);
+            this.$emit('postCreated', { ...this.formData });
         },
     },
 };
