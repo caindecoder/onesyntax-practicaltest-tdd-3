@@ -1,4 +1,4 @@
-export class WebsiteRequest {
+export default class WebsiteRequest {
     constructor({ name, url }) {
         this.name = name;
         this.url = url;

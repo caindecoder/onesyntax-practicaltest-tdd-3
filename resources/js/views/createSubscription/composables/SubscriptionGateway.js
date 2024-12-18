@@ -1,4 +1,4 @@
-export class SubscriptionGateway {
+export default class SubscriptionGateway {
     async fetchSubscriptions() {
         const response = await fetch('/api/subscriptions');
         if (!response.ok) throw new Error('Failed to fetch subscriptions');

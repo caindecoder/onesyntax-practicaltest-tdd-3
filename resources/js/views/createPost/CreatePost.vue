@@ -1,6 +1,6 @@
 <script>
-import { PostInteractor } from './composables/postInteractor.js';
-import { WebsiteGateway } from './composables/WebsiteGateway.js';
+import PostInteractor from './composables/postInteractor.js';
+import WebsiteGateway from './composables/WebsiteGateway.js';
 import CreatePostForm from './components/CreatePostForm.vue';
 import PostList from './components/PostList.vue';
 import Notification from '../shared/Notification.vue';

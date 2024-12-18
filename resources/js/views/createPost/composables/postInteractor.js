@@ -1,7 +1,7 @@
-import { PostGateway } from './PostGateway';
-import { PostRequest } from './PostRequest';
+import PostGateway from './PostGateway';
+import PostRequest from './PostRequest';
 
-export class PostInteractor {
+export default class PostInteractor {
     constructor() {
         this.gateway = new PostGateway();
     }

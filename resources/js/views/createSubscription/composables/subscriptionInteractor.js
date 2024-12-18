@@ -1,7 +1,7 @@
-import { SubscriptionGateway } from './SubscriptionGateway';
-import { SubscriptionRequest } from './SubscriptionRequest';
+import SubscriptionGateway from './SubscriptionGateway';
+import SubscriptionRequest from './SubscriptionRequest';
 
-export class SubscriptionInteractor {
+export default class SubscriptionInteractor {
     constructor() {
         this.gateway = new SubscriptionGateway();
     }

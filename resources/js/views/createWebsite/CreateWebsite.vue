@@ -1,5 +1,5 @@
 <script>
-import { WebsiteInteractor } from './composables/websiteInteractor.js';
+import WebsiteInteractor from './composables/websiteInteractor.js';
 import CreateWebsiteForm from './components/CreateWebsiteForm.vue';
 import WebsiteList from './components/WebsiteList.vue';
 import Notification from '../shared/Notification.vue';

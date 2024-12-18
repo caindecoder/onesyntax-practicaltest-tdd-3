@@ -1,6 +1,6 @@
 <script>
-import { SubscriptionInteractor } from './composables/subscriptionInteractor.js';
-import { WebsiteGateway } from './composables/WebsiteGateway.js';
+import SubscriptionInteractor from './composables/subscriptionInteractor.js';
+import WebsiteGateway from './composables/WebsiteGateway.js';
 import CreateSubscriptionForm from './components/CreateSubscriptionForm.vue';
 import SubscriptionList from './components/SubscriptionList.vue';
 import Notification from '../shared/Notification.vue';

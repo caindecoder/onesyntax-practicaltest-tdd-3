@@ -1,7 +1,7 @@
-import { WebsiteGateway } from './WebsiteGateway';
-import { WebsiteRequest } from './websiteRequest';
+import WebsiteGateway from './WebsiteGateway';
+import WebsiteRequest from './websiteRequest';
 
-export class WebsiteInteractor {
+export default class WebsiteInteractor {
     constructor() {
         this.gateway = new WebsiteGateway();
     }

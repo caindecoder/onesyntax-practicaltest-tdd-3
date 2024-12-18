@@ -1,4 +1,4 @@
-export class Subscription {
+export default class Subscription {
     constructor({ id, email, website_id }) {
         this.id = id || null;
         this.email = email || '';

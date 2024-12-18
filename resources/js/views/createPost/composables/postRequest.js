@@ -1,4 +1,4 @@
-export class PostRequest {
+export default class PostRequest {
     constructor({ title, description, website_id }) {
         this.title = title;
         this.description = description;

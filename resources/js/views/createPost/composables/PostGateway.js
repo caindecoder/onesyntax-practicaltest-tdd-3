@@ -1,4 +1,4 @@
-export class PostGateway {
+export default class PostGateway {
     async fetchPosts() {
         const response = await fetch('/api/posts');
         if (!response.ok) throw new Error('Failed to fetch posts');
