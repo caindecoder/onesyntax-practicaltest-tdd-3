@@ -1,8 +1,11 @@
+import Subscription from "./Subscription.js";
+
 export default class SubscriptionGateway {
     async fetchSubscriptions() {
         const response = await fetch('/api/subscriptions');
         if (!response.ok) throw new Error('Failed to fetch subscriptions');
-        return response.json();
+        const subscriptions = await response.json();
+        return subscriptions.map(data => new Subscription(data));
     }
 
     async createSubscription(subscriptionRequest) {

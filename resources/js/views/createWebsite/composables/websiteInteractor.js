@@ -1,5 +1,6 @@
 import WebsiteGateway from './WebsiteGateway';
 import WebsiteRequest from './websiteRequest';
+import Website from './Website';
 
 export default class WebsiteInteractor {
     constructor() {
@@ -10,9 +11,10 @@ export default class WebsiteInteractor {
         return await this.gateway.fetchWebsites();
     }
 
-    async createWebsite(websiteData) {
-        const request = new WebsiteRequest(websiteData);
+    async createWebsite(website) {
+        const request = new WebsiteRequest(website);
         request.validate();
-        return await this.gateway.createWebsite(request);
+        const createdWebsite = await this.gateway.createWebsite(request);
+        return new Website(createdWebsite);
     }
 }

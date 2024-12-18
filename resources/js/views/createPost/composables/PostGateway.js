@@ -1,8 +1,11 @@
+import Post from "./Post.js";
+
 export default class PostGateway {
     async fetchPosts() {
         const response = await fetch('/api/posts');
         if (!response.ok) throw new Error('Failed to fetch posts');
-        return response.json();
+        const posts = await response.json();
+        return posts.map(data => new Post(data));
     }
 
     async createPost(postRequest) {

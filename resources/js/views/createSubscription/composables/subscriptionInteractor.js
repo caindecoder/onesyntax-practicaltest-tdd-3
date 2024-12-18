@@ -1,5 +1,6 @@
 import SubscriptionGateway from './SubscriptionGateway';
 import SubscriptionRequest from './SubscriptionRequest';
+import Subscription from './Subscription';
 
 export default class SubscriptionInteractor {
     constructor() {
@@ -10,9 +11,10 @@ export default class SubscriptionInteractor {
         return await this.gateway.fetchSubscriptions();
     }
 
-    async createSubscription(subscriptionData) {
-        const request = new SubscriptionRequest(subscriptionData);
+    async createSubscription(subscription) {
+        const request = new SubscriptionRequest(subscription);
         request.validate();
-        return await this.gateway.createSubscription(request);
+        const createdSubscription = await this.gateway.createSubscription(request);
+        return new Subscription(createdSubscription);
     }
 }
