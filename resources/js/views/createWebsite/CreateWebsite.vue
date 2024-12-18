@@ -1,5 +1,6 @@
 <script>
-import WebsiteInteractor from './composables/websiteInteractor.js';
+import FetchWebsitesInteractor from '../createWebsite/composables/WebsiteFetchInteracator.js';
+import CreateWebsiteInteractor from '../createWebsite/composables/WebsiteCreateInteractor.js';
 import CreateWebsiteForm from './components/CreateWebsiteForm.vue';
 import WebsiteList from './components/WebsiteList.vue';
 import Notification from '../shared/Notification.vue';
@@ -18,21 +19,22 @@ export default {
         };
     },
     async created() {
-        this.interactor = new WebsiteInteractor();
+        this.fetchWebsitesInteractor = new FetchWebsitesInteractor();
         await this.loadWebsites();
     },
     methods: {
         async loadWebsites() {
             try {
-                this.websites = await this.interactor.fetchWebsites();
+                this.websites = await this.fetchWebsitesInteractor.execute();
             } catch (error) {
                 this.message = error.message;
                 this.messageType = 'error';
             }
         },
-        async handleWebsiteCreated(websiteData) {
+        async handleWebsiteCreated(website) {
             try {
-                const newWebsite = await this.interactor.createWebsite(websiteData);
+                const createWebsiteInteractor = new CreateWebsiteInteractor();
+                const newWebsite = await createWebsiteInteractor.execute(website);
                 this.websites.push(newWebsite);
                 this.message = 'Website created successfully!';
                 this.messageType = 'success';
